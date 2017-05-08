@@ -6,8 +6,8 @@ J строки
 */
 
     class level {
-        public $width=56;
-        public $height=90;
+        public $width=150;
+        public $height=150;
 
         private $map;     //сама карта
         private $scheme;   //схема уровня. вероятно скоро спилится
@@ -29,13 +29,13 @@ J строки
                 $this->min_corridor_length=$_POST['min_corridor_length'];
                 $this->max_corridor_length=$_POST['max_corridor_length'];
             } else {
-                $this->max_room_size=8;
+                $this->max_room_size=10;
                 $this->min_room_size=4;
-                $this->tort=20;
-                $this->max_depth=0;
-                $this->corridor_prob_red=20;
-                $this->min_corridor_length=5;
-                $this->max_corridor_length=10;
+                $this->tort=40;
+                $this->max_depth=30;
+                $this->corridor_prob_red=50;
+                $this->min_corridor_length=10;
+                $this->max_corridor_length=20;
             }
             $this->corridor_prob=100;
         }
@@ -409,6 +409,7 @@ J строки
             $this->player['max_damage']=4;
             $this->player['armor']=6;
             $this->player['strength']=3;
+            $this->player['vision_range']=7;
         }
 
         private function add_monster($x,$y) {
@@ -450,7 +451,7 @@ J строки
     //$level->add_player($level->width/2, $level->height/2);
     $level->add_player($level->height/2, $level->width/2);
 
-    //$level->print_level();
+    // $level->print_level();
 
     $level->return_level_json();
 
