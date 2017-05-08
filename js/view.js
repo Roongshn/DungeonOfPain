@@ -1,4 +1,4 @@
-const TILESIZE = 16;
+const TILESIZE = 24;
 
 class Drawer {
     constructor(canvasId, tileset) {
@@ -40,21 +40,22 @@ class Render {
         this.viewport = {
             h,
             w,
-            x: this.layers.player.position.y - (w/2),
-            y: this.layers.player.position.x - (h/2),
+            x: Math.floor(this.layers.player.data.position.y - (w/2)),
+            y: Math.floor(this.layers.player.data.position.x - (h/2)),
         }
+        console.log(this.viewport);
     }
     moveViewport(x, y) {
-        if((this.viewport.x + x) >=0 && (this.viewport.x + x + this.viewport.w) <= this.layers.map.length) {
+        if((this.viewport.x + x) >=0 && (this.viewport.x + x + this.viewport.w) <= this.layers.map.data.length) {
             this.viewport.x += x;
         }
-        if((this.viewport.y + y) >=0 && (this.viewport.y + y + this.viewport.h) <= this.layers.map[0].length) {
+        if((this.viewport.y + y) >=0 && (this.viewport.y + y + this.viewport.h) <= this.layers.map.data[0].length) {
             this.viewport.y += y;
         }
     }
     drawMap() {
         const drawer = this.mapDrawer;
-        const data = this.layers.map;
+        const data = this.layers.map.data;
 
         drawer.fill('#000');
 
@@ -94,7 +95,7 @@ class Render {
     }
     drawPlayer() {
         const drawer = this.playerDrawer;
-        const data = this.layers.player;
+        const data = this.layers.player.data;
 
         drawer.clear();
         drawer.drawTile({
@@ -107,9 +108,9 @@ class Render {
     }
     drawFogOfWar() {
         const drawer = this.fogDrawer;
-        const playerPosition = this.layers.player.position;
-        const playerVisionRange = this.layers.player.vision_range + 1;
-        const map = this.layers.map;
+        const playerPosition = this.layers.player.data.position;
+        const playerVisionRange = this.layers.player.data.vision_range + 1;
+        const map = this.layers.map.data;
 
         drawer.clear();
         drawer.fill('rgba(0, 0, 0, 0.5)');
@@ -122,13 +123,15 @@ class Render {
                 }
                 const distantion = getDist(playerPosition, realPoint)
                 if (distantion <= playerVisionRange) {
-                    drawer.clear({x: i, y: j});
-                }
-                if(distantion === playerVisionRange) {
-                    drawer.fill('rgba(0, 0, 0, 0.3)', {x: i, y: j});
-                }
-                if(distantion === playerVisionRange-1) {
-                    drawer.fill('rgba(0, 0, 0, 0.2)', {x: i, y: j});
+                    if(this.layers.map.isVisible(playerPosition, realPoint)) {
+                        drawer.clear({x: i, y: j});
+                        if(distantion === playerVisionRange) {
+                            drawer.fill('rgba(0, 0, 0, 0.3)', {x: i, y: j});
+                        }
+                        if(distantion === playerVisionRange-1) {
+                            drawer.fill('rgba(0, 0, 0, 0.2)', {x: i, y: j});
+                        }
+                    }
                 }
             }
         }
