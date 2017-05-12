@@ -1,3 +1,6 @@
+// TODO: 1) переделать drawTile на id тайлов
+// 2) переделать draw чтобы принимал массив того, что нужно отрисовать
+
 const TILESIZE = 24;
 
 class Drawer {
@@ -30,6 +33,7 @@ class Render {
     constructor(data, tileset) {
         this.mapDrawer = new Drawer('map', tileset);
         this.playerDrawer = new Drawer('player', tileset);
+        this.monstersDrawer = new Drawer('monsters', tileset);
         this.fogDrawer = new Drawer('fog', tileset);
 
         this.layers = data;
@@ -43,7 +47,6 @@ class Render {
             x: Math.floor(this.layers.player.data.position.y - (w/2)),
             y: Math.floor(this.layers.player.data.position.x - (h/2)),
         }
-        console.log(this.viewport);
     }
     moveViewport(x, y) {
         if((this.viewport.x + x) >=0 && (this.viewport.x + x + this.viewport.w) <= this.layers.map.data.length) {
@@ -106,6 +109,21 @@ class Render {
             y: data.position.y - this.viewport.y
         });
     }
+    drawMonsters() {
+        const drawer = this.monstersDrawer;
+        const data = this.layers.monsters.data;
+        drawer.clear();
+
+        for (let mob of data) {
+            drawer.drawTile({
+                c: 4,
+                r: 0
+            }, {
+                x: mob.position.x - this.viewport.x,
+                y: mob.position.y - this.viewport.y
+            });
+        }
+    }
     drawFogOfWar() {
         const drawer = this.fogDrawer;
         const playerPosition = this.layers.player.data.position;
@@ -141,5 +159,6 @@ class Render {
         this.drawMap();
         this.drawPlayer();
         this.drawFogOfWar();
+        this.drawMonsters();
     }
 }

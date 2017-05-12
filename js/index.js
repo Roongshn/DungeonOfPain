@@ -1,5 +1,5 @@
-const VIEWPORT_MOVE_DIST = 5;
-
+const VIEWPORT_MOVE_DIST = 7;
+const BASE_DURATION = 100;
 /*
 Игровая механика:
 
@@ -13,16 +13,94 @@ const VIEWPORT_MOVE_DIST = 5;
 прокачка:
 скорость 5 = 105% = каждые 95 тиков
 
+игрок и все мобы помещаются в односвязный список и имеют продолжительность
+каждое действие игрока увеличивает его продолжительность
+после каждого действия игрока мобы могут действовать, пока их продолжительность <= продолжительности игрока
+Эффекты действуют также. При наложении им выставляется продолжительность игрока и конечная продолжительность
+У голода и автолечения продолжительность -1, бесконечные
+
 */
+
+class GameEngine {
+    constructor(data, tileset) {
+        this.level = new Level(data);
+        this.render = new Render(this.level.getData(), tileset);
+        this.render.draw();
+    }
+    movePlayer(shift) {
+        const map = this.level.map;
+        const player = this.level.player;
+        const viewport = this.render.viewport;
+
+        let nextPosition = {
+            x: player.data.position.x + shift[0],
+            y: player.data.position.y + shift[1],
+        }
+        if(map.isMovable(nextPosition)) {
+            player.move(...shift);
+            let viewportShift;
+
+            if(nextPosition.x - VIEWPORT_MOVE_DIST < viewport.x) {
+                viewportShift = [-1, 0];
+            }
+            if(nextPosition.x + VIEWPORT_MOVE_DIST > viewport.x + viewport.w) {
+                viewportShift = [1, 0];
+            }
+            if(nextPosition.y - VIEWPORT_MOVE_DIST < viewport.y) {
+                viewportShift = [0, -1];
+            }
+            if(nextPosition.y + VIEWPORT_MOVE_DIST > viewport.y + viewport.h) {
+                viewportShift = [0, 1];
+            }
+
+            if(viewportShift) {
+                this.render.moveViewport(...viewportShift);
+                this.render.draw();
+            } else {
+                this.render.drawPlayer();
+                this.render.drawFogOfWar();
+            }
+            let duration = this.getActionDuration('move', player.data.speed);
+            this.doMainCicle(duration);
+        }
+    }
+    getActionDuration(actionName, abilityValue) {
+        // actionName нужно на случай нестандартных формул рассчета продолжительности
+        return BASE_DURATION - abilityValue;
+    }
+    doMainCicle(duration) {
+        const player = this.level.player;
+        const monsters = this.level.monsters;
+        const map = this.level.map;
+        player.data.duration += duration;
+
+        // for(monster in monsters.data) {
+        monsters.data.forEach((monster, id) => {
+            while(monster.duration < player.data.duration) {
+                if(map.isVisible(player.data.position, monster.position)) {
+                //логика поведения моба
+                    const newPoint = map.getNearest(monster.position, player.data.position);
+                    map.data[monster.position.x][monster.position.y].charaster = '';
+                    monsters.moveMonster(id, newPoint);
+                    map.data[newPoint.x][newPoint.y].charaster = id;
+                    monster.duration += this.getActionDuration('move', monster.speed);
+                    console.log(this.getActionDuration('move', player.data.speed), this.getActionDuration('move', monster.speed));
+                } else {
+                    monster.duration = player.data.duration;
+                }
+            }
+        });
+        this.render.drawMonsters();
+    }
+}
+
 
 (async () => {
     const tileset = new Image();
     let data = await (await fetch('./php/generator.php')).json();
-    const level = new Level(data);
-    const render = new Render(level.getData(), tileset);
 
     tileset.addEventListener('load', () => {
-        render.draw();
+        game = new GameEngine(data, tileset);
     });
 
     addEventListener('keydown', (e) => {
@@ -43,8 +121,8 @@ const VIEWPORT_MOVE_DIST = 5;
                     params = [-1, 0];
                     break;
             }
-            render.moveViewport(...params);
-            render.draw();
+            game.render.moveViewport(...params);
+            game.render.draw();
         }
 
         if(e.keyCode === 87 || e.keyCode === 65 || e.keyCode === 83 || e.keyCode === 68) {
@@ -63,35 +141,7 @@ const VIEWPORT_MOVE_DIST = 5;
                     playerShift = [1, 0];
                     break;
             }
-            let nextPosition = {
-                x: level.player.data.position.x + playerShift[0],
-                y: level.player.data.position.y + playerShift[1],
-            }
-            if(level.map.isMovable(nextPosition)) {
-                level.player.move(...playerShift);
-                let viewportShift;
-
-                if(nextPosition.x - VIEWPORT_MOVE_DIST < render.viewport.x) {
-                    viewportShift = [-1, 0];
-                }
-                if(nextPosition.x + VIEWPORT_MOVE_DIST > render.viewport.x + render.viewport.w) {
-                    viewportShift = [1, 0];
-                }
-                if(nextPosition.y - VIEWPORT_MOVE_DIST < render.viewport.y) {
-                    viewportShift = [0, -1];
-                }
-                if(nextPosition.y + VIEWPORT_MOVE_DIST > render.viewport.y + render.viewport.h) {
-                    viewportShift = [0, 1];
-                }
-
-                if(viewportShift) {
-                    render.moveViewport(...viewportShift);
-                    render.draw();
-                } else {
-                    render.drawPlayer();
-                    render.drawFogOfWar();
-                }
-            }
+            game.movePlayer(playerShift);
         }
     });
 

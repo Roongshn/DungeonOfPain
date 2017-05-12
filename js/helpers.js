@@ -1,29 +1,38 @@
 function getDist(point1, point2) {
-    return Math.floor(Math.sqrt( Math.pow((point2.x-point1.x),2) + Math.pow((point2.y-point1.y),2)));
+    return Math.sqrt( Math.pow((point2.x-point1.x),2) + Math.pow((point2.y-point1.y),2));
 }
+
 function getLine(point1, point2) { //первый параметр - проверяемая точка, второй - позиция наблюдателя
-    // TODO: разобраться, почему всё упарывается, если передать параметры не в том порядке
     // brezenheme
+    let pointS = {
+        x: point1.x,
+        y: point1.y,
+    };
+    let pointF = {
+        x: point2.x,
+        y: point2.y,
+    };
+
     let result = new Array;
 
-    let d_x = Math.abs(point2.x - point1.x);
-    let d_y = Math.abs(point2.y - point1.y);
-    let sign_x = point1.x < point2.x ? 1 : -1;
-    let sign_y = point1.y < point2.y ? 1 : -1;
+    let d_x = Math.abs(pointF.x - pointS.x);
+    let d_y = Math.abs(pointF.y - pointS.y);
+    let sign_x = pointS.x < pointF.x ? 1 : -1;
+    let sign_y = pointS.y < pointF.y ? 1 : -1;
     //
     let error = d_x - d_y;
     //
-    result.push({'x':point2.x, 'y':point2.y});
-    while(point1.x != point2.x || point1.y != point2.y) {
-        result.push({'x':point1.x, 'y':point1.y});
+    result.push({'x':pointF.x, 'y':pointF.y});
+    while(pointS.x != pointF.x || pointS.y != pointF.y) {
+        result.push({'x':pointS.x, 'y':pointS.y});
         let error2 = error * 2;
         if(error2 > -d_y) {
             error -= d_y;
-            point1.x += sign_x;
+            pointS.x += sign_x;
         }
         if(error2 < d_x) {
             error += d_x;
-            point1.y += sign_y;
+            pointS.y += sign_y;
         }
     }
     return result;

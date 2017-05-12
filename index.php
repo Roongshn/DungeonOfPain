@@ -12,6 +12,7 @@
     </head>
     <body>
         <canvas height='864' width='1440' id='map'>Your browser suck</canvas>
+        <canvas height='864' width='1440' id='monsters'>Your browser suck</canvas>
         <canvas height='864' width='1440' id='player'>Your browser suck</canvas>
         <canvas height='864' width='1440' id='fog'>Your browser suck</canvas>
     </body>

@@ -29,13 +29,13 @@ J строки
                 $this->min_corridor_length=$_POST['min_corridor_length'];
                 $this->max_corridor_length=$_POST['max_corridor_length'];
             } else {
-                $this->max_room_size=6;
-                $this->min_room_size=3;
-                $this->tort=40;
-                $this->max_depth=30;
-                $this->corridor_prob_red=50;
-                $this->min_corridor_length=10;
-                $this->max_corridor_length=20;
+                $this->max_room_size=2;
+                $this->min_room_size=4;
+                $this->tort=80;
+                $this->max_depth=10;
+                $this->corridor_prob_red=0;
+                $this->min_corridor_length=20;
+                $this->max_corridor_length=30;
             }
             $this->corridor_prob=100;
         }
@@ -409,7 +409,9 @@ J строки
             $this->player['max_damage']=4;
             $this->player['armor']=6;
             $this->player['strength']=3;
+            $this->player['speed']=15;
             $this->player['vision_range']=16;
+            $this->player['duration']=0;
         }
 
         private function add_monster($x,$y) {
@@ -426,11 +428,12 @@ J строки
 
                                'hp'=>10,
                                'max_hp'=>10,
-
+                               'duration'=>0,
                                'min_damage'=>1,
                                'max_damage'=>3,
                                'armor'=>3,
-                               'strength'=>2
+                               'strength'=>2,
+                               'speed'=>4,
                                ];
             //помечаем на карте
             $this->map[$x][$y]['charaster'] = count($this->monsters)-1;
