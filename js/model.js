@@ -13,7 +13,7 @@ class Map {
     isVisible(viever, point) { //существует ли между точками прямая видимость
         const line = getLine(point, viever);
         let isVisible = true;
-        for (let i = line.length-1; i>0;  i--) {
+        for (let i = line.length-1; i>1;  i--) {
             if (!this.isTransparent({x: line[i].x, y: line[i].y})) {
                 return false;
             }
@@ -22,13 +22,14 @@ class Map {
     }
     isMovable(point) {
         const cell = this.data[point.x][point.y];
-        if(cell.type === 'WL' || cell.type === '' || cell.charaster) {
+        if(cell.type === 'WL' || cell.type === '' || typeof cell.charaster === 'number' ) {
             return false;
         }
         return true;
     }
     getNearest(point1, point2) { //наблюдатель, объект
         //возвращает ближайшую к второй точке точку из окрестности первой
+        // TODO: Проверять, не является ли текущая уже ближайшей, а то мобы скачут немного
         let result = new Array();
         let min_dist = getDist(point1, point2);
         result = point1;
@@ -41,9 +42,8 @@ class Map {
                 }
                 let dist = getDist(newPoint, point2);
                 if (
-                    dist<=min_dist &&
-                    this.isMovable(newPoint) &&
-                    !(newPoint.x === point2.x && newPoint.y === point2.y) //это не конечная точка
+                    dist<=min_dist
+                    && this.isMovable(newPoint)
                 ) {
                     min_dist = dist;
                     result = newPoint;
@@ -52,34 +52,119 @@ class Map {
         }
         return result;
     }
+    moveCharaster(oldPosition, newPosition, id) {
+        this.data[oldPosition.x][oldPosition.y].charaster = undefined;
+        this.data[newPosition.x][newPosition.y].charaster = id;
+    }
 }
 
 class Player {
     // TODO: сделать получение статов методами, а не из data
-    constructor(data) {
-        this.data = data;
+    constructor(data, map) {
+        this.map = map;
+        this.id = 999;
+        this.duration = 0;
+        this.position = data.position;
+        this.stats = {
+            speed: data.speed,
+            visionRange: data.vision_range,
+        }
     }
-    move(x, y) {
-        this.data.position.x += x;
-        this.data.position.y += y;
+    move(point) { //наследовать!
+        this.duration += getActionDuration('move', this.stats.speed);
+        if(this.map.isMovable(point)) {
+            this.map.moveCharaster(this.position, point, this.id);
+            this.position.x = point.x;
+            this.position.y = point.y;
+            return point;
+        }
+        return false;
+    }
+}
+
+class Monster {
+    constructor(id, data, map) {
+        /*
+            sleep ->
+                если видит игрока awaken, запоминает где видел
+            awaken ->
+                если видит игрока - идёт к нему
+                если не видит - идёт туда, где видел последний раз
+                если он уже там, где видел - sleep
+        */
+
+        // богатый внутренний мир
+        this.map = map;
+
+        this.id = id;
+        this.duration = 0;
+        this.state = 'sleep';
+        this.position = data.position;
+        this.stats = {
+            speed: data.speed,
+        }
+        this.memory = {};
+    }
+    move(point) { //наследовать!
+        console.log(this.id);
+        this.duration += getActionDuration('move', this.stats.speed);
+        if(this.map.isMovable(point)) {
+            this.map.moveCharaster(this.position, point, this.id);
+            this.position.x = point.x;
+            this.position.y = point.y;
+            return point;
+        }
+        return false;
+    }
+    remember(key, data) {
+        this.memory[key] = Object.assign({}, data);
+    }
+    forget(key) {
+        this.memory[key] = undefined;
+    }
+    decide(player, map) { // принимает персонажа таким, какой он есть. со всеми достоинствами и недостатками.
+        let newMap;
+        let newPlayer;
+        while(this.duration < player.duration) {
+            const canSeePlayer = map.isVisible(player.position, this.position);
+            //каждый раз, когда моб видит игрока - он запечатляется в его памяти
+            if(canSeePlayer) {
+                this.remember('player', player.position);
+            }
+            if(this.state === 'sleep') {
+                if(canSeePlayer) {
+                    this.state = 'awaken';
+                } else {
+                    this.duration = player.duration;
+                }
+            }
+            if(this.state === 'awaken') {
+                if(canSeePlayer) { //если видит игрока - идёт к нему
+                    this.move(map.getNearest(this.position, player.position));
+                } else if(this.position.x !== this.memory.player.x || this.position.y !== this.memory.player.y) { // если не видит, но ещё не пришёл туда, где видел последний раз - идёт туда
+                    this.move(map.getNearest(this.position, this.memory.player));
+                } else { //если пришел, но всё ещё не видит - засыпает
+                    this.state = 'sleep';
+                }
+            }
+        }
     }
 }
 
 class Monsters {
-    constructor(data) {
-        this.data = data;
-    }
-    moveMonster(id, point) {
-        this.data[id].position.x = point.x;
-        this.data[id].position.y = point.y;
+    constructor(data, map) {
+        this.data = [];
+        data.forEach((monster, i) => {
+            this.data[i] = new Monster(i, monster, map);
+        });
     }
 }
 
 class Level {
     constructor(data) {
         this.map = new Map(data.map);
-        this.player = new Player(data.player);
-        this.monsters = new Monsters(data.monsters);
+        this.player = new Player(data.player, this.map);
+        this.monsters = new Monsters(data.monsters, this.map);
     }
     getLayer(layer) {
         return this.data[layer];
@@ -91,7 +176,10 @@ class Level {
                 isVisible: this.map.isVisible,
             },
             player: {
-                data: this.player.data,
+                data: {
+                    position: this.player.position,
+                    stats: this.player.stats
+                },
             },
             monsters: {
                 data: this.monsters.data,

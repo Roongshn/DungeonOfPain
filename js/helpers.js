@@ -37,3 +37,8 @@ function getLine(point1, point2) { //первый параметр - прове�
     }
     return result;
 }
+
+function getActionDuration(actionName, abilityValue) {
+    // actionName нужно на случай нестандартных формул рассчета продолжительности
+    return BASE_DURATION - abilityValue;
+}

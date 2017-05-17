@@ -40,7 +40,6 @@ class Render {
 
         let h = $('#map').height() / TILESIZE;
         let w = $('#map').width() / TILESIZE;
-        console.log(h, w);
         this.viewport = {
             h,
             w,
@@ -99,7 +98,6 @@ class Render {
     drawPlayer() {
         const drawer = this.playerDrawer;
         const data = this.layers.player.data;
-
         drawer.clear();
         drawer.drawTile({
             c: 3,
@@ -127,7 +125,7 @@ class Render {
     drawFogOfWar() {
         const drawer = this.fogDrawer;
         const playerPosition = this.layers.player.data.position;
-        const playerVisionRange = this.layers.player.data.vision_range + 1;
+        const playerVisionRange = this.layers.player.data.stats.visionRange + 1;
         const map = this.layers.map.data;
 
         drawer.clear();
@@ -141,7 +139,7 @@ class Render {
                 }
                 const distantion = getDist(playerPosition, realPoint)
                 if (distantion <= playerVisionRange) {
-                    if(this.layers.map.isVisible(playerPosition, realPoint)) {
+                    if(this.layers.map.isVisible(realPoint, playerPosition)) {
                         drawer.clear({x: i, y: j});
                         if(distantion === playerVisionRange) {
                             drawer.fill('rgba(0, 0, 0, 0.3)', {x: i, y: j});

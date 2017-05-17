@@ -32,10 +32,10 @@ J строки
                 $this->max_room_size=2;
                 $this->min_room_size=4;
                 $this->tort=80;
-                $this->max_depth=10;
+                $this->max_depth=1;
                 $this->corridor_prob_red=0;
-                $this->min_corridor_length=20;
-                $this->max_corridor_length=30;
+                $this->min_corridor_length=5;
+                $this->max_corridor_length=15;
             }
             $this->corridor_prob=100;
         }
@@ -412,6 +412,8 @@ J строки
             $this->player['speed']=15;
             $this->player['vision_range']=16;
             $this->player['duration']=0;
+
+            $this->map[$x][$y]['charaster'] = 999;
         }
 
         private function add_monster($x,$y) {
@@ -452,7 +454,7 @@ J строки
     $level->postgenerate();
     //$level->make_scheme();
     //$level->add_player($level->width/2, $level->height/2);
-    $level->add_player($level->height/2, $level->width/2);
+    //$level->add_player($level->height/2, $level->width/2);
 
     // $level->print_level();
 

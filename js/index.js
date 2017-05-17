@@ -28,16 +28,16 @@ class GameEngine {
         this.render.draw();
     }
     movePlayer(shift) {
-        const map = this.level.map;
+        // const map = this.level.map;
         const player = this.level.player;
         const viewport = this.render.viewport;
 
         let nextPosition = {
-            x: player.data.position.x + shift[0],
-            y: player.data.position.y + shift[1],
+            x: player.position.x + shift[0],
+            y: player.position.y + shift[1],
         }
-        if(map.isMovable(nextPosition)) {
-            player.move(...shift);
+        const moveResult = player.move(nextPosition);
+        if(moveResult !== false) {
             let viewportShift;
 
             if(nextPosition.x - VIEWPORT_MOVE_DIST < viewport.x) {
@@ -52,7 +52,6 @@ class GameEngine {
             if(nextPosition.y + VIEWPORT_MOVE_DIST > viewport.y + viewport.h) {
                 viewportShift = [0, 1];
             }
-
             if(viewportShift) {
                 this.render.moveViewport(...viewportShift);
                 this.render.draw();
@@ -60,35 +59,16 @@ class GameEngine {
                 this.render.drawPlayer();
                 this.render.drawFogOfWar();
             }
-            let duration = this.getActionDuration('move', player.data.speed);
-            this.doMainCicle(duration);
         }
+        this.doMainCicle();
     }
-    getActionDuration(actionName, abilityValue) {
-        // actionName нужно на случай нестандартных формул рассчета продолжительности
-        return BASE_DURATION - abilityValue;
-    }
-    doMainCicle(duration) {
+    doMainCicle() {
         const player = this.level.player;
         const monsters = this.level.monsters;
         const map = this.level.map;
-        player.data.duration += duration;
 
-        // for(monster in monsters.data) {
-        monsters.data.forEach((monster, id) => {
-            while(monster.duration < player.data.duration) {
-                if(map.isVisible(player.data.position, monster.position)) {
-                //логика поведения моба
-                    const newPoint = map.getNearest(monster.position, player.data.position);
-                    map.data[monster.position.x][monster.position.y].charaster = '';
-                    monsters.moveMonster(id, newPoint);
-                    map.data[newPoint.x][newPoint.y].charaster = id;
-                    monster.duration += this.getActionDuration('move', monster.speed);
-                    console.log(this.getActionDuration('move', player.data.speed), this.getActionDuration('move', monster.speed));
-                } else {
-                    monster.duration = player.data.duration;
-                }
-            }
+        monsters.data.forEach((monster) => {
+            monster.decide(player, map);
         });
         this.render.drawMonsters();
     }
@@ -113,7 +93,7 @@ class GameEngine {
                     break;
                 case 39:
                     params = [1, 0];
-                    break;
+                    break;xtnj 
                 case 40:
                     params = [0, 1];
                     break;
