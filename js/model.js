@@ -58,19 +58,19 @@ class Map {
     }
 }
 
-class Player {
+class Charaster {
     // TODO: сделать получение статов методами, а не из data
-    constructor(data, map) {
+    constructor(id, data, map) {
+        this.id = id;
         this.map = map;
-        this.id = 999;
-        this.duration = 0;
-        this.position = data.position;
         this.stats = {
             speed: data.speed,
             visionRange: data.vision_range,
         }
+        this.position = data.position;
+        this.duration = 0;
     }
-    move(point) { //наследовать!
+    move(point) {
         this.duration += getActionDuration('move', this.stats.speed);
         if(this.map.isMovable(point)) {
             this.map.moveCharaster(this.position, point, this.id);
@@ -82,8 +82,15 @@ class Player {
     }
 }
 
-class Monster {
+class Player extends Charaster {
     constructor(id, data, map) {
+        super(id, data, map);
+    }
+}
+
+class Monster extends Charaster {
+    constructor(id, data, map) {
+        super(id, data, map);
         /*
             sleep ->
                 если видит игрока awaken, запоминает где видел
@@ -94,27 +101,9 @@ class Monster {
         */
 
         // богатый внутренний мир
-        this.map = map;
-
-        this.id = id;
-        this.duration = 0;
+        // Уже не такой богатый, всё переехало в конструктор родителя
         this.state = 'sleep';
-        this.position = data.position;
-        this.stats = {
-            speed: data.speed,
-        }
         this.memory = {};
-    }
-    move(point) { //наследовать!
-        console.log(this.id);
-        this.duration += getActionDuration('move', this.stats.speed);
-        if(this.map.isMovable(point)) {
-            this.map.moveCharaster(this.position, point, this.id);
-            this.position.x = point.x;
-            this.position.y = point.y;
-            return point;
-        }
-        return false;
     }
     remember(key, data) {
         this.memory[key] = Object.assign({}, data);
@@ -122,11 +111,9 @@ class Monster {
     forget(key) {
         this.memory[key] = undefined;
     }
-    decide(player, map) { // принимает персонажа таким, какой он есть. со всеми достоинствами и недостатками.
-        let newMap;
-        let newPlayer;
+    decide(player) { // принимает персонажа таким, какой он есть. со всеми достоинствами и недостатками.
         while(this.duration < player.duration) {
-            const canSeePlayer = map.isVisible(player.position, this.position);
+            const canSeePlayer = this.map.isVisible(player.position, this.position);
             //каждый раз, когда моб видит игрока - он запечатляется в его памяти
             if(canSeePlayer) {
                 this.remember('player', player.position);
@@ -140,9 +127,9 @@ class Monster {
             }
             if(this.state === 'awaken') {
                 if(canSeePlayer) { //если видит игрока - идёт к нему
-                    this.move(map.getNearest(this.position, player.position));
+                    this.move(this.map.getNearest(this.position, player.position));
                 } else if(this.position.x !== this.memory.player.x || this.position.y !== this.memory.player.y) { // если не видит, но ещё не пришёл туда, где видел последний раз - идёт туда
-                    this.move(map.getNearest(this.position, this.memory.player));
+                    this.move(this.map.getNearest(this.position, this.memory.player));
                 } else { //если пришел, но всё ещё не видит - засыпает
                     this.state = 'sleep';
                 }
@@ -163,7 +150,7 @@ class Monsters {
 class Level {
     constructor(data) {
         this.map = new Map(data.map);
-        this.player = new Player(data.player, this.map);
+        this.player = new Player(999, data.player, this.map);
         this.monsters = new Monsters(data.monsters, this.map);
     }
     getLayer(layer) {
