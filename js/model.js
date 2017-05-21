@@ -68,10 +68,13 @@ class Charaster {
             visionRange: data.vision_range,
         }
         this.position = data.position;
+        this.prevPosition = Object.assign({}, data.position); //предыдущее положение. Для рендера.
         this.duration = 0;
     }
     move(point) {
         this.duration += getActionDuration('move', this.stats.speed);
+        this.prevPosition.x = this.position.x;
+        this.prevPosition.y = this.position.y;
         if(this.map.isMovable(point)) {
             this.map.moveCharaster(this.position, point, this.id);
             this.position.x = point.x;
@@ -165,6 +168,7 @@ class Level {
             player: {
                 data: {
                     position: this.player.position,
+                    prevPosition: this.player.prevPosition,
                     stats: this.player.stats
                 },
             },

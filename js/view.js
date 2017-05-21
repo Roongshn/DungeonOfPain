@@ -98,28 +98,73 @@ class Render {
     drawPlayer() {
         const drawer = this.playerDrawer;
         const data = this.layers.player.data;
-        drawer.clear();
-        drawer.drawTile({
+        const animatonDelta = 0.33333;
+        const tile = {
             c: 3,
             r: 0
-        }, {
-            x: data.position.x - this.viewport.x,
-            y: data.position.y - this.viewport.y
-        });
+        };
+
+        if(data.prevPosition.x !== data.position.x || data.prevPosition.y !== data.position.y) {
+            const xDirection = data.position.x - data.prevPosition.x;
+            const yDirection = data.position.y - data.prevPosition.y;
+            for (let i = 0; i <= 1/animatonDelta; i+=animatonDelta) {
+                let delay = i * 100;
+                setTimeout(() => {
+                    drawer.clear();
+                    drawer.drawTile(tile, {
+                        x: data.prevPosition.x + (animatonDelta * i * xDirection) - this.viewport.x,
+                        y: data.prevPosition.y + (animatonDelta * i * yDirection) - this.viewport.y,
+                    });
+                }, delay);
+            }
+        } else {
+            drawer.clear();
+            drawer.drawTile(tile, {
+                x: data.position.x - this.viewport.x,
+                y: data.position.y - this.viewport.y,
+            });
+        }
+
     }
     drawMonsters() {
         const drawer = this.monstersDrawer;
         const data = this.layers.monsters.data;
-        drawer.clear();
+        const animatonDelta = 0.33333;
+        const tile = {
+            c: 4,
+            r: 0
+        };
 
         for (let mob of data) {
-            drawer.drawTile({
-                c: 4,
-                r: 0
-            }, {
-                x: mob.position.x - this.viewport.x,
-                y: mob.position.y - this.viewport.y
-            });
+            if(mob.prevPosition.x !== mob.position.x || mob.prevPosition.y !== mob.position.y) {
+                const xDirection = mob.position.x - mob.prevPosition.x;
+                const yDirection = mob.position.y - mob.prevPosition.y;
+                for (let i = 0; i <= 1/animatonDelta; i+=animatonDelta) {
+                    let delay = i * 100;
+                    let animationInterval = setTimeout(() => {
+                        clearInterval(clearInterval);
+                        drawer.clear();
+                        drawer.drawTile(tile, {
+                            x: mob.prevPosition.x + (animatonDelta * i * xDirection) - this.viewport.x,
+                            y: mob.prevPosition.y + (animatonDelta * i * yDirection) - this.viewport.y,
+                        });
+                    }, delay);
+                }
+            } else {
+                drawer.clear();
+                drawer.drawTile(tile, {
+                    x: mob.position.x - this.viewport.x,
+                    y: mob.position.y - this.viewport.y,
+                });
+            }
+
+
+
+            //
+            // drawer.drawTile(tile, {
+            //     x: mob.position.x - this.viewport.x,
+            //     y: mob.position.y - this.viewport.y
+            // });
         }
     }
     drawFogOfWar() {
