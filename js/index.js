@@ -21,11 +21,25 @@ const BASE_DURATION = 100;
 
 */
 
+// TODO:
+/*
+Рендер: просто цикл, который беспрерывно отрисовывет модель
+В перспективе можно добавить флаги обновления конкретных слоёв, чтобы не пререрисовывать постоянно
+
+Вся игровая механика просто меняет модель с определенными задержками, рендер ничего про это не знает, и просто забирает обновления
+
+*/
+
 class GameEngine {
     constructor(data, tileset) {
         this.level = new Level(data);
         this.render = new Render(this.level.getData(), tileset);
         this.render.draw();
+
+        setInterval(() => {
+            this.render.draw();
+        }, 50) // временное решение, потом переделать на нормальное, с учетом системного времени и всё такое
+
     }
     movePlayer(shift) {
         // const map = this.level.map;
@@ -37,6 +51,7 @@ class GameEngine {
             y: player.position.y + shift[1],
         }
         const moveResult = player.move(nextPosition);
+
         if(moveResult !== false) {
             let viewportShift;
 
@@ -54,10 +69,10 @@ class GameEngine {
             }
             if(viewportShift) {
                 this.render.moveViewport(...viewportShift);
-                this.render.draw();
+                // this.render.draw();
             } else {
-                this.render.drawPlayer();
-                this.render.drawFogOfWar();
+                // this.render.drawPlayer(); // вот эту фигню надо заменить флагами для перерисовки только нужных слоёв, пока можно забить
+                // this.render.drawFogOfWar();
             }
         }
         this.doMainCicle();
@@ -102,7 +117,7 @@ class GameEngine {
                     break;
             }
             game.render.moveViewport(...params);
-            game.render.draw();
+            // game.render.draw();
         }
 
         if(e.keyCode === 87 || e.keyCode === 65 || e.keyCode === 83 || e.keyCode === 68) {
