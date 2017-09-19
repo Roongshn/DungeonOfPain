@@ -108,7 +108,7 @@ class GameEngine {
                     break;
                 case 39:
                     params = [1, 0];
-                    break;xtnj 
+                    break;
                 case 40:
                     params = [0, 1];
                     break;
@@ -140,5 +140,5 @@ class GameEngine {
         }
     });
 
-    tileset.src = './tiles/tileset_s.png';
+    tileset.src = './tiles/tileset_b.png';
 })();

@@ -1,29 +1,52 @@
 // TODO: 1) переделать drawTile на id тайлов
 // 2) переделать draw чтобы принимал массив того, что нужно отрисовать
 
-const TILESIZE = 24;
+const TILESIZE = 48;
 
 class Drawer {
     constructor(canvasId, tileset) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
-        this.tileset = tileset;
+        if(tileset) {
+            this.tileset = tileset;
+        }
+
+        if(canvasId === 'debugger') {
+            this.ctx.textBaseline = "top";
+            this.ctx.fillStyle = "#FFF";
+            this.ctx.strokeStyle = "#FFF";
+            this.ctx.font = "normal 5pt Open Sans";
+        }
     }
     drawTile(tile, point) {
         this.ctx.drawImage(this.tileset, tile.c * TILESIZE, tile.r * TILESIZE, TILESIZE, TILESIZE, point.x * TILESIZE, point.y * TILESIZE, TILESIZE, TILESIZE);
     }
+    drawText(text, strNumber, point) {
+        this.ctx.fillText(text, point.x * TILESIZE, point.y * TILESIZE);
+        // this.ctx.strokeText(text, point.x * TILESIZE, point.y * TILESIZE);
+    }
     fill(color, point) {
         this.ctx.fillStyle = color;
         let params = [0, 0, this.canvas.width, this.canvas.height];
-        if(point) {
-            params = [point.x*  TILESIZE, point.y * TILESIZE, TILESIZE, TILESIZE];
+        if (point) {
+            params = [
+                point.x * TILESIZE,
+                point.y * TILESIZE,
+                TILESIZE,
+                TILESIZE
+            ];
         }
         this.ctx.fillRect(...params);
     }
     clear(point) {
         let params = [0, 0, this.canvas.width, this.canvas.height];
-        if(point) {
-            params = [point.x * TILESIZE, point.y * TILESIZE, TILESIZE, TILESIZE];
+        if (point) {
+            params = [
+                point.x * TILESIZE,
+                point.y * TILESIZE,
+                TILESIZE,
+                TILESIZE
+            ];
         }
         this.ctx.clearRect(...params);
     }
@@ -35,6 +58,7 @@ class Render {
         this.playerDrawer = new Drawer('player', tileset);
         this.monstersDrawer = new Drawer('monsters', tileset);
         this.fogDrawer = new Drawer('fog', tileset);
+        this.debuggerDrawer = new Drawer('debugger');
 
         this.layers = data;
 
@@ -43,15 +67,15 @@ class Render {
         this.viewport = {
             h,
             w,
-            x: Math.floor(this.layers.player.data.position.y - (w/2)),
-            y: Math.floor(this.layers.player.data.position.x - (h/2)),
+            x: Math.floor(this.layers.player.data.position.y - (w / 2)),
+            y: Math.floor(this.layers.player.data.position.x - (h / 2))
         }
     }
     moveViewport(x, y) {
-        if((this.viewport.x + x) >=0 && (this.viewport.x + x + this.viewport.w) <= this.layers.map.data.length) {
+        if ((this.viewport.x + x) >= 0 && (this.viewport.x + x + this.viewport.w) <= this.layers.map.data.length) {
             this.viewport.x += x;
         }
-        if((this.viewport.y + y) >=0 && (this.viewport.y + y + this.viewport.h) <= this.layers.map.data[0].length) {
+        if ((this.viewport.y + y) >= 0 && (this.viewport.y + y + this.viewport.h) <= this.layers.map.data[0].length) {
             this.viewport.y += y;
         }
     }
@@ -67,7 +91,7 @@ class Render {
                 let tile;
                 switch (cell.type) {
                     case 'WL':
-                        tile = {
+                        tile = { // полное говно, надо переписать на айди тайлов
                             c: 0,
                             r: cell.tile
                         }
@@ -86,7 +110,7 @@ class Render {
                         break;
 
                 }
-                if(tile) {
+                if (tile) {
                     drawer.drawTile(tile, {
                         x: i,
                         y: j
@@ -107,7 +131,7 @@ class Render {
         drawer.clear();
         drawer.drawTile(tile, {
             x: data.position.x - this.viewport.x,
-            y: data.position.y - this.viewport.y,
+            y: data.position.y - this.viewport.y
         });
     }
     drawMonsters() {
@@ -120,11 +144,11 @@ class Render {
         };
 
         for (let mob of data) {
-                drawer.clear();
-                drawer.drawTile(tile, {
-                    x: mob.position.x - this.viewport.x,
-                    y: mob.position.y - this.viewport.y,
-                });
+            drawer.clear();
+            drawer.drawTile(tile, {
+                x: mob.position.x - this.viewport.x,
+                y: mob.position.y - this.viewport.y
+            });
         }
     }
     drawFogOfWar() {
@@ -140,17 +164,23 @@ class Render {
             for (let j = 0; j < this.viewport.h; j++) {
                 let realPoint = {
                     x: i + this.viewport.x,
-                    y: j + this.viewport.y,
+                    y: j + this.viewport.y
                 }
                 const distantion = getDist(playerPosition, realPoint)
                 if (distantion <= playerVisionRange) {
-                    if(this.layers.map.isVisible(realPoint, playerPosition)) {
+                    if (this.layers.map.isVisible(realPoint, playerPosition)) {
                         drawer.clear({x: i, y: j});
-                        if(distantion === playerVisionRange) {
-                            drawer.fill('rgba(0, 0, 0, 0.3)', {x: i, y: j});
+                        if (distantion === playerVisionRange) {
+                            drawer.fill('rgba(0, 0, 0, 0.3)', {
+                                x: i,
+                                y: j
+                            });
                         }
-                        if(distantion === playerVisionRange-1) {
-                            drawer.fill('rgba(0, 0, 0, 0.2)', {x: i, y: j});
+                        if (distantion === playerVisionRange - 1) {
+                            drawer.fill('rgba(0, 0, 0, 0.2)', {
+                                x: i,
+                                y: j
+                            });
                         }
                     }
                 }
@@ -158,11 +188,26 @@ class Render {
         }
 
     }
+    drawDebugger() {
+        const map = this.layers.map.data;
+        const drawer = this.debuggerDrawer;
+        drawer.clear();
+
+        for (let i = 0; i < this.viewport.w; i++) {
+            for (let j = 0; j < this.viewport.h; j++) {
+                drawer.drawText(`x: ${i + this.viewport.x}, y: ${j + this.viewport.y}`, 1,  {
+                    x: i,
+                    y: j
+                });
+            }
+        }
+    }
     draw() {
         // console.log('draw');
         this.drawMap();
         this.drawPlayer();
         // this.drawFogOfWar();
         this.drawMonsters();
+        this.drawDebugger();
     }
 }
