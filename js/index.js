@@ -32,14 +32,17 @@ const BASE_DURATION = 100;
 
 class GameEngine {
     constructor(data, tileset) {
+        const that = this;
+
         this.level = new Level(data);
         this.render = new Render(this.level.getData(), tileset);
         this.render.draw();
 
-        setInterval(() => {
-            this.render.draw();
-        }, 50) // временное решение, потом переделать на нормальное, с учетом системного времени и всё такое
-
+        function renderCycle() {
+            that.render.draw();
+            requestAnimFrame(renderCycle)
+        }
+        renderCycle();
     }
     movePlayer(shift) {
         // const map = this.level.map;
@@ -69,7 +72,6 @@ class GameEngine {
             }
             if(viewportShift) {
                 this.render.moveViewport(...viewportShift);
-                // this.render.draw();
             } else {
                 // this.render.drawPlayer(); // вот эту фигню надо заменить флагами для перерисовки только нужных слоёв, пока можно забить
                 // this.render.drawFogOfWar();

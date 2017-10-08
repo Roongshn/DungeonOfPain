@@ -66,25 +66,7 @@ class Map {
                 result = newPoint;
             }
         }
-
-        /*
-        for(let i=-1; i<=1; i++) {
-            for(let j=-1; j<=1; j++){
-                const newPoint = {
-                    x: i+point1.x,
-                    y: j+point1.y,
-                }
-                let dist = getDist(newPoint, point2);
-                if (
-                    dist<=min_dist
-                    && this.isMovable(newPoint)
-                ) {
-                    min_dist = dist;
-                    result = newPoint;
-                }
-            }
-        }
-        */
+        
         return result;
     }
     moveCharaster(oldPosition, newPosition, id) {
