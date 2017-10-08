@@ -15,15 +15,32 @@ class Drawer {
             this.ctx.textBaseline = "top";
             this.ctx.fillStyle = "#FFF";
             this.ctx.strokeStyle = "#FFF";
-            this.ctx.font = "normal 5pt Open Sans";
+            this.ctx.lineWidth=1;
+            this.ctx.font = "bold 6pt Open Sans";
         }
     }
     drawTile(tile, point) {
         this.ctx.drawImage(this.tileset, tile.c * TILESIZE, tile.r * TILESIZE, TILESIZE, TILESIZE, point.x * TILESIZE, point.y * TILESIZE, TILESIZE, TILESIZE);
     }
     drawText(text, strNumber, point) {
-        this.ctx.fillText(text, point.x * TILESIZE, point.y * TILESIZE);
-        // this.ctx.strokeText(text, point.x * TILESIZE, point.y * TILESIZE);
+        let params = [
+            text,
+            point.x * TILESIZE + 3,
+            point.y * TILESIZE + 2 + (12 * strNumber)
+        ]
+        this.ctx.strokeStyle = "#000";
+        this.ctx.strokeText(...params);
+        this.ctx.strokeStyle = "#FFF";
+        this.ctx.fillText(...params);
+    }
+    drawCellBorder(point) {
+        let params = [
+            point.x * TILESIZE,
+            point.y * TILESIZE,
+            TILESIZE,
+            TILESIZE
+        ];
+        this.ctx.strokeRect(...params);
     }
     fill(color, point) {
         this.ctx.fillStyle = color;
@@ -142,9 +159,8 @@ class Render {
             c: 4,
             r: 0
         };
-
+        drawer.clear();
         for (let mob of data) {
-            drawer.clear();
             drawer.drawTile(tile, {
                 x: mob.position.x - this.viewport.x,
                 y: mob.position.y - this.viewport.y
@@ -195,10 +211,17 @@ class Render {
 
         for (let i = 0; i < this.viewport.w; i++) {
             for (let j = 0; j < this.viewport.h; j++) {
-                drawer.drawText(`x: ${i + this.viewport.x}, y: ${j + this.viewport.y}`, 1,  {
+                let point = {
                     x: i,
                     y: j
-                });
+                };
+                let cell = map[i + this.viewport.x][j + this.viewport.y];
+                // console.log(map[i + this.viewport.x][j + this.viewport.y]);
+                drawer.drawText(`x: ${i + this.viewport.x}, y: ${j + this.viewport.y}`, 0, point);
+                if(cell.charaster !== undefined) {
+                    drawer.drawText(`Prsn: ${cell.charaster}`, 1, point);
+                }
+                drawer.drawCellBorder(point);
             }
         }
     }
