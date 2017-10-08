@@ -34,6 +34,40 @@ class Map {
         let min_dist = getDist(point1, point2);
         result = point1;
 
+        let pointShihts = [
+            {
+                x: 0,
+                y: -1
+            },
+            {
+                x: 0,
+                y: 1
+            },
+            {
+                x: -1,
+                y: 0
+            },
+            {
+                x: 1,
+                y: 0
+            },
+        ];
+        for(let shift of pointShihts) {
+            const newPoint = {
+                x: shift.x + point1.x,
+                y: shift.y + point1.y,
+            }
+            let dist = getDist(newPoint, point2);
+            if (
+                dist<=min_dist
+                && this.isMovable(newPoint)
+            ) {
+                min_dist = dist;
+                result = newPoint;
+            }
+        }
+
+        /*
         for(let i=-1; i<=1; i++) {
             for(let j=-1; j<=1; j++){
                 const newPoint = {
@@ -50,6 +84,7 @@ class Map {
                 }
             }
         }
+        */
         return result;
     }
     moveCharaster(oldPosition, newPosition, id) {
