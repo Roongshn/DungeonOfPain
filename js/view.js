@@ -183,16 +183,17 @@ class Render {
                     y: j + this.viewport.y
                 }
                 const distantion = getDist(playerPosition, realPoint)
-                if (distantion <= playerVisionRange) {
+                if (distantion < playerVisionRange) {
                     if (this.layers.map.isVisible(realPoint, playerPosition)) {
                         drawer.clear({x: i, y: j});
-                        if (distantion === playerVisionRange) {
+
+                        if (distantion <= playerVisionRange && distantion >= playerVisionRange-1) {
                             drawer.fill('rgba(0, 0, 0, 0.3)', {
                                 x: i,
                                 y: j
                             });
                         }
-                        if (distantion === playerVisionRange - 1) {
+                        if (distantion < playerVisionRange - 1 && distantion >= playerVisionRange - 2) {
                             drawer.fill('rgba(0, 0, 0, 0.2)', {
                                 x: i,
                                 y: j
