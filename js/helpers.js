@@ -38,18 +38,25 @@ function getLine(point1, point2) { //первый параметр - прове�
     return result;
 }
 
-const requestAnimFrame = (function(){
-    return window.requestAnimationFrame       ||
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame    ||
-        window.oRequestAnimationFrame      ||
-        window.msRequestAnimationFrame     ||
-        function(callback){
-            window.setTimeout(callback, 1000 / 60);
-        };
-})();
 
 function getActionDuration(actionName, abilityValue) {
     // actionName нужно на случай нестандартных формул рассчета продолжительности
     return BASE_DURATION - abilityValue;
 }
+
+function doAnimationCycle(callback, speed) {
+    let speed = speed || 60;
+
+    
+}
+
+const requestAnimFrame = (function(){
+    return window.requestAnimationFrame       ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame    ||
+    window.oRequestAnimationFrame      ||
+    window.msRequestAnimationFrame     ||
+    function(callback){
+        window.setTimeout(callback, 1000 / 60);
+    };
+})();

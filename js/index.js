@@ -119,7 +119,6 @@ class GameEngine {
                     break;
             }
             game.render.moveViewport(...params);
-            // game.render.draw();
         }
 
         if(e.keyCode === 87 || e.keyCode === 65 || e.keyCode === 83 || e.keyCode === 68) {

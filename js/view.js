@@ -229,8 +229,8 @@ class Render {
         // console.log('draw');
         this.drawMap();
         this.drawPlayer();
-        // this.drawFogOfWar();
+        this.drawFogOfWar();
         this.drawMonsters();
-        this.drawDebugger();
+        // this.drawDebugger();
     }
 }

@@ -29,8 +29,8 @@ J строки
                 $this->min_corridor_length=$_POST['min_corridor_length'];
                 $this->max_corridor_length=$_POST['max_corridor_length'];
             } else {
-                $this->max_room_size=2;
-                $this->min_room_size=4;
+                $this->max_room_size=10;
+                $this->min_room_size=20;
                 $this->tort=60;
                 $this->max_depth=1;
                 $this->corridor_prob_red=0;
@@ -410,7 +410,7 @@ J строки
             $this->player['armor']=6;
             $this->player['strength']=3;
             $this->player['speed']=15;
-            $this->player['vision_range']=16;
+            $this->player['vision_range']=5;
             $this->player['duration']=0;
 
             $this->map[$x][$y]['charaster'] = 999;
