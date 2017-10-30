@@ -29,13 +29,13 @@ J строки
                 $this->min_corridor_length=$_POST['min_corridor_length'];
                 $this->max_corridor_length=$_POST['max_corridor_length'];
             } else {
-                $this->max_room_size=10;
-                $this->min_room_size=20;
+                $this->max_room_size=2;
+                $this->min_room_size=5;
                 $this->tort=60;
                 $this->max_depth=1;
                 $this->corridor_prob_red=0;
-                $this->min_corridor_length=10;
-                $this->max_corridor_length=15;
+                $this->min_corridor_length=5;
+                $this->max_corridor_length=7;
             }
             $this->corridor_prob=100;
         }

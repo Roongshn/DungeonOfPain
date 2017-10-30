@@ -81,11 +81,46 @@ class Render {
 
         let h = $('#map').height() / TILESIZE;
         let w = $('#map').width() / TILESIZE;
+
         this.viewport = {
             h,
             w,
             x: Math.floor(this.layers.player.data.position.y - (w / 2)),
             y: Math.floor(this.layers.player.data.position.x - (h / 2))
+        }
+
+        this.trasitionVars = {
+            playerPosition: {
+                x: this.layers.player.data.position.x,
+                y: this.layers.player.data.position.y,
+            },
+            viewport: {
+                x: this.viewport.x,
+                y: this.viewport.y,
+            },
+        }
+    }
+    transitVars() {
+        // TODO: отрисовка не успевает за моделью, наверное надо блокировать управление
+
+        function getNextValue(modelVar, transVar) {
+            return Number((transVar + 0.1 * Math.sign(modelVar - transVar)).toFixed(1));
+        }
+
+        //player
+        const player = this.layers.player.data;
+        if(this.trasitionVars.playerPosition.x !== player.position.x) {
+            this.trasitionVars.playerPosition.x = getNextValue(player.position.x, this.trasitionVars.playerPosition.x);
+        }
+        if(this.trasitionVars.playerPosition.y !== player.position.y) {
+            this.trasitionVars.playerPosition.y = getNextValue(player.position.y, this.trasitionVars.playerPosition.y);
+        }
+        //viewport
+        if(this.trasitionVars.viewport.x !== this.viewport.x) {
+            this.trasitionVars.viewport.x = getNextValue(this.viewport.x, this.trasitionVars.viewport.x);
+        }
+        if(this.trasitionVars.viewport.y !== this.viewport.y) {
+            this.trasitionVars.viewport.y = getNextValue(this.viewport.y, this.trasitionVars.viewport.y);
         }
     }
     moveViewport(x, y) {
@@ -95,6 +130,9 @@ class Render {
         if ((this.viewport.y + y) >= 0 && (this.viewport.y + y + this.viewport.h) <= this.layers.map.data[0].length) {
             this.viewport.y += y;
         }
+    }
+    getViewportCorrection(axis) {
+        return this.viewport[axis] - this.trasitionVars.viewport[axis];
     }
     drawMap() {
         const drawer = this.mapDrawer;
@@ -129,8 +167,8 @@ class Render {
                 }
                 if (tile) {
                     drawer.drawTile(tile, {
-                        x: i,
-                        y: j
+                        x: i + this.getViewportCorrection('x'),
+                        y: j + this.getViewportCorrection('y'),
                     });
                 }
             }
@@ -138,8 +176,6 @@ class Render {
     }
     drawPlayer() {
         const drawer = this.playerDrawer;
-        const data = this.layers.player.data;
-        // console.log(data);
         const tile = {
             c: 3,
             r: 0
@@ -147,8 +183,8 @@ class Render {
 
         drawer.clear();
         drawer.drawTile(tile, {
-            x: data.position.x - this.viewport.x,
-            y: data.position.y - this.viewport.y
+            x: this.trasitionVars.playerPosition.x - this.trasitionVars.viewport.x,
+            y: this.trasitionVars.playerPosition.y - this.trasitionVars.viewport.y,
         });
     }
     drawMonsters() {
@@ -162,8 +198,8 @@ class Render {
         drawer.clear();
         for (let mob of data) {
             drawer.drawTile(tile, {
-                x: mob.position.x - this.viewport.x,
-                y: mob.position.y - this.viewport.y
+                x: mob.position.x - this.trasitionVars.viewport.x,
+                y: mob.position.y - this.trasitionVars.viewport.y,
             });
         }
     }
@@ -185,18 +221,21 @@ class Render {
                 const distantion = getDist(playerPosition, realPoint)
                 if (distantion < playerVisionRange) {
                     if (this.layers.map.isVisible(realPoint, playerPosition)) {
-                        drawer.clear({x: i, y: j});
+                        drawer.clear({
+                            x: i + this.getViewportCorrection('x'),
+                            y: j + this.getViewportCorrection('y'),
+                        });
 
                         if (distantion <= playerVisionRange && distantion >= playerVisionRange-1) {
                             drawer.fill('rgba(0, 0, 0, 0.3)', {
-                                x: i,
-                                y: j
+                                x: i + this.getViewportCorrection('x'),
+                                y: j + this.getViewportCorrection('y'),
                             });
                         }
                         if (distantion < playerVisionRange - 1 && distantion >= playerVisionRange - 2) {
                             drawer.fill('rgba(0, 0, 0, 0.2)', {
-                                x: i,
-                                y: j
+                                x: i + this.getViewportCorrection('x'),
+                                y: j + this.getViewportCorrection('y'),
                             });
                         }
                     }
@@ -227,7 +266,8 @@ class Render {
         }
     }
     draw() {
-        // console.log('draw');
+        this.transitVars();
+
         this.drawMap();
         this.drawPlayer();
         this.drawFogOfWar();
