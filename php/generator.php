@@ -31,11 +31,11 @@ J строки
             } else {
                 $this->max_room_size=2;
                 $this->min_room_size=5;
-                $this->tort=60;
-                $this->max_depth=1;
+                $this->tort=90;
+                $this->max_depth=2;
                 $this->corridor_prob_red=0;
-                $this->min_corridor_length=5;
-                $this->max_corridor_length=7;
+                $this->min_corridor_length=20;
+                $this->max_corridor_length=30;
             }
             $this->corridor_prob=100;
         }

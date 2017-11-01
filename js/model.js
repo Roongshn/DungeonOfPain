@@ -5,16 +5,15 @@ class Map {
     }
     isTransparent(point) {
         const pointType = this.data[point.x][point.y].type;
-        if(pointType === 'WL' || pointType === 'D') {
+        if (pointType === 'WL' || pointType === 'D') {
             return false;
         }
         return true;
     }
-    isVisible(viever, point) { //существует ли между точками прямая видимость
+    isVisible(viever, point) { // существует ли между точками прямая видимость
         const line = getLine(point, viever);
-        let isVisible = true;
-        for (let i = line.length-1; i>1;  i--) {
-            if (!this.isTransparent({x: line[i].x, y: line[i].y})) {
+        for (let i = line.length - 1; i > 1; i--) {
+            if (!this.isTransparent({ x: line[i].x, y: line[i].y })) {
                 return false;
             }
         }
@@ -22,47 +21,47 @@ class Map {
     }
     isMovable(point) {
         const cell = this.data[point.x][point.y];
-        if(cell.type === 'WL' || cell.type === '' || typeof cell.charaster === 'number' ) {
+        if (cell.type === 'WL' || cell.type === '' || typeof cell.charaster === 'number') {
             return false;
         }
         return true;
     }
-    getNearest(point1, point2) { //наблюдатель, объект
-        //возвращает ближайшую к второй точке точку из окрестности первой
+    getNearest(point1, point2) { // наблюдатель, объект
+        // возвращает ближайшую к второй точке точку из окрестности первой
         // TODO: Проверять, не является ли текущая уже ближайшей, а то мобы скачут немного
-        let result = new Array();
-        let min_dist = getDist(point1, point2);
+        let result = [];
+        const minDist = getDist(point1, point2);
         result = point1;
 
-        let pointShihts = [
+        const pointShihts = [
             {
                 x: 0,
-                y: -1
+                y: -1,
             },
             {
                 x: 0,
-                y: 1
+                y: 1,
             },
             {
                 x: -1,
-                y: 0
+                y: 0,
             },
             {
                 x: 1,
-                y: 0
+                y: 0,
             },
         ];
-        for(let shift of pointShihts) {
+        for (const shift of pointShihts) {
             const newPoint = {
                 x: shift.x + point1.x,
                 y: shift.y + point1.y,
-            }
-            let dist = getDist(newPoint, point2);
+            };
+            const dist = getDist(newPoint, point2);
             if (
-                dist<=min_dist
+                dist <= minDist
                 && this.isMovable(newPoint)
             ) {
-                min_dist = dist;
+                minDist = dist;
                 result = newPoint;
             }
         }
@@ -83,14 +82,14 @@ class Charaster {
         this.stats = {
             speed: data.speed,
             visionRange: data.vision_range,
-        }
+        };
         this.position = data.position;
-        this.prevPosition = Object.assign({}, data.position); //предыдущее положение. Для рендера. // наверное уже не актуально
+        this.prevPosition = Object.assign({}, data.position); // предыдущее положение. Для рендера. // наверное уже не актуально
         this.duration = 0;
     }
     move(point) {
         this.duration += getActionDuration('move', this.stats.speed);
-        if(this.map.isMovable(point)) {
+        if (this.map.isMovable(point)) {
             const xDirection = point.x - this.position.x;
             const yDirection = point.y - this.position.y;
 
@@ -145,25 +144,28 @@ class Monster extends Charaster {
         this.memory[key] = undefined;
     }
     decide(player) { // принимает персонажа таким, какой он есть. со всеми достоинствами и недостатками.
-        while(this.duration < player.duration) {
+        while (this.duration < player.duration) {
             const canSeePlayer = this.map.isVisible(player.position, this.position);
-            //каждый раз, когда моб видит игрока - он запечатляется в его памяти
-            if(canSeePlayer) {
+            // каждый раз, когда моб видит игрока - он запечатляется в его памяти
+            if (canSeePlayer) {
                 this.remember('player', player.position);
             }
-            if(this.state === 'sleep') {
-                if(canSeePlayer) {
+            if (this.state === 'sleep') {
+                if (canSeePlayer) {
                     this.state = 'awaken';
-                } else {
+                }
+                else {
                     this.duration = player.duration;
                 }
             }
-            if(this.state === 'awaken') {
-                if(canSeePlayer) { //если видит игрока - идёт к нему
+            if (this.state === 'awaken') {
+                if (canSeePlayer) { // если видит игрока - идёт к нему
                     this.move(this.map.getNearest(this.position, player.position));
-                } else if(this.position.x !== this.memory.player.x || this.position.y !== this.memory.player.y) { // если не видит, но ещё не пришёл туда, где видел последний раз - идёт туда
+                }
+                else if (this.position.x !== this.memory.player.x || this.position.y !== this.memory.player.y) { // если не видит, но ещё не пришёл туда, где видел последний раз - идёт туда
                     this.move(this.map.getNearest(this.position, this.memory.player));
-                } else { //если пришел, но всё ещё не видит - засыпает
+                }
+                else { // если пришел, но всё ещё не видит - засыпает
                     this.state = 'sleep';
                 }
             }
@@ -199,12 +201,12 @@ class Level {
                 data: {
                     position: this.player.position,
                     prevPosition: this.player.prevPosition,
-                    stats: this.player.stats
+                    stats: this.player.stats,
                 },
             },
             monsters: {
                 data: this.monsters.data,
-            }
-        }
+            },
+        };
     }
 }
