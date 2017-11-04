@@ -1,0 +1,26 @@
+{
+  "name": "dungeon-of-pain",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-eslint": "^8.0.1",
+    "eslint": "^4.10.0",
+    "eslint-plugin-babel": "^4.1.2",
+    "eslint-plugin-react": "^7.4.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Roongshn/DungeonOfPain.git"
+  },
+  "author": "Roongshn",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Roongshn/DungeonOfPain/issues"
+  },
+  "homepage": "https://github.com/Roongshn/DungeonOfPain#readme"
+}

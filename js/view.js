@@ -7,38 +7,38 @@ class Drawer {
     constructor(canvasId, tileset) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
-        if(tileset) {
+        if (tileset) {
             this.tileset = tileset;
         }
 
-        if(canvasId === 'debugger') {
-            this.ctx.textBaseline = "top";
-            this.ctx.fillStyle = "#FFF";
-            this.ctx.strokeStyle = "#FFF";
-            this.ctx.lineWidth=1;
-            this.ctx.font = "bold 6pt Open Sans";
+        if (canvasId === 'debugger') {
+            this.ctx.textBaseline = 'top';
+            this.ctx.fillStyle = '#FFF';
+            this.ctx.strokeStyle = '#FFF';
+            this.ctx.lineWidth = 1;
+            this.ctx.font = 'bold 6pt Open Sans';
         }
     }
     drawTile(tile, point) {
         this.ctx.drawImage(this.tileset, tile.c * TILESIZE, tile.r * TILESIZE, TILESIZE, TILESIZE, point.x * TILESIZE, point.y * TILESIZE, TILESIZE, TILESIZE);
     }
     drawText(text, strNumber, point) {
-        let params = [
+        const params = [
             text,
             point.x * TILESIZE + 3,
-            point.y * TILESIZE + 2 + (12 * strNumber)
-        ]
-        this.ctx.strokeStyle = "#000";
+            point.y * TILESIZE + 2 + (12 * strNumber),
+        ];
+        this.ctx.strokeStyle = '#000';
         this.ctx.strokeText(...params);
-        this.ctx.strokeStyle = "#FFF";
+        this.ctx.strokeStyle = '#FFF';
         this.ctx.fillText(...params);
     }
     drawCellBorder(point) {
-        let params = [
+        const params = [
             point.x * TILESIZE,
             point.y * TILESIZE,
             TILESIZE,
-            TILESIZE
+            TILESIZE,
         ];
         this.ctx.strokeRect(...params);
     }
@@ -50,7 +50,7 @@ class Drawer {
                 point.x * TILESIZE,
                 point.y * TILESIZE,
                 TILESIZE,
-                TILESIZE
+                TILESIZE,
             ];
         }
         this.ctx.fillRect(...params);
@@ -62,7 +62,7 @@ class Drawer {
                 point.x * TILESIZE,
                 point.y * TILESIZE,
                 TILESIZE,
-                TILESIZE
+                TILESIZE,
             ];
         }
         this.ctx.clearRect(...params);
@@ -79,15 +79,15 @@ class Render {
 
         this.layers = data;
 
-        let h = $('#map').height() / TILESIZE;
-        let w = $('#map').width() / TILESIZE;
+        const h = $('#map').height() / TILESIZE;
+        const w = $('#map').width() / TILESIZE;
 
         this.viewport = {
             h,
             w,
             x: Math.floor(this.layers.player.data.position.y - (w / 2)),
-            y: Math.floor(this.layers.player.data.position.x - (h / 2))
-        }
+            y: Math.floor(this.layers.player.data.position.x - (h / 2)),
+        };
 
         this.trasitionVars = {
             playerPosition: {
@@ -98,6 +98,13 @@ class Render {
                 x: this.viewport.x,
                 y: this.viewport.y,
             },
+            monsters: [],
+        };
+        for(const monster of this.layers.monsters.data) {
+            this.trasitionVars.monsters.push({
+                x: monster.position.x,
+                y: monster.position.y,
+            });
         }
     }
     transitVars() {
@@ -107,20 +114,30 @@ class Render {
             return Number((transVar + 0.1 * Math.sign(modelVar - transVar)).toFixed(1));
         }
 
-        //player
+        // player
         const player = this.layers.player.data;
-        if(this.trasitionVars.playerPosition.x !== player.position.x) {
+        if (this.trasitionVars.playerPosition.x !== player.position.x) {
             this.trasitionVars.playerPosition.x = getNextValue(player.position.x, this.trasitionVars.playerPosition.x);
         }
-        if(this.trasitionVars.playerPosition.y !== player.position.y) {
+        if (this.trasitionVars.playerPosition.y !== player.position.y) {
             this.trasitionVars.playerPosition.y = getNextValue(player.position.y, this.trasitionVars.playerPosition.y);
         }
-        //viewport
-        if(this.trasitionVars.viewport.x !== this.viewport.x) {
+        // viewport
+        if (this.trasitionVars.viewport.x !== this.viewport.x) {
             this.trasitionVars.viewport.x = getNextValue(this.viewport.x, this.trasitionVars.viewport.x);
         }
-        if(this.trasitionVars.viewport.y !== this.viewport.y) {
+        if (this.trasitionVars.viewport.y !== this.viewport.y) {
             this.trasitionVars.viewport.y = getNextValue(this.viewport.y, this.trasitionVars.viewport.y);
+        }
+        // monsters
+        const monsters = this.layers.monsters.data;
+        for(const index in this.trasitionVars.monsters) {
+            if(this.trasitionVars.monsters[index].x !== monsters[index].position.x) {
+                this.trasitionVars.monsters[index].x = getNextValue(monsters[index].position.x, this.trasitionVars.monsters[index].x);
+            }
+            if(this.trasitionVars.monsters[index].y !== monsters[index].position.y) {
+                this.trasitionVars.monsters[index].y = getNextValue(monsters[index].position.y, this.trasitionVars.monsters[index].y);
+            }
         }
     }
     moveViewport(x, y) {
@@ -142,27 +159,27 @@ class Render {
 
         for (let i = 0; i < this.viewport.w; i++) {
             for (let j = 0; j < this.viewport.h; j++) {
-                let cell = data[i + this.viewport.x][j + this.viewport.y];
+                const cell = data[i + this.viewport.x][j + this.viewport.y];
                 let tile;
                 switch (cell.type) {
-                    case 'WL':
-                        tile = { // полное говно, надо переписать на айди тайлов
-                            c: 0,
-                            r: cell.tile
-                        }
-                        break;
-                    case 'F':
-                        tile = {
-                            c: 1,
-                            r: 0
-                        }
-                        break;
-                    case 'D':
-                        tile = {
-                            c: 2,
-                            r: 0
-                        }
-                        break;
+                case 'WL':
+                    tile = { // полное говно, надо переписать на айди тайлов
+                        c: 0,
+                        r: cell.tile,
+                    };
+                    break;
+                case 'F':
+                    tile = {
+                        c: 1,
+                        r: 0,
+                    };
+                    break;
+                case 'D':
+                    tile = {
+                        c: 2,
+                        r: 0,
+                    };
+                    break;
 
                 }
                 if (tile) {
@@ -176,30 +193,30 @@ class Render {
     }
     drawPlayer() {
         const drawer = this.playerDrawer;
+        const data = this.trasitionVars.playerPosition;
         const tile = {
             c: 3,
-            r: 0
+            r: 0,
         };
 
         drawer.clear();
         drawer.drawTile(tile, {
-            x: this.trasitionVars.playerPosition.x - this.trasitionVars.viewport.x,
-            y: this.trasitionVars.playerPosition.y - this.trasitionVars.viewport.y,
+            x: data.x - this.trasitionVars.viewport.x,
+            y: data.y - this.trasitionVars.viewport.y,
         });
     }
     drawMonsters() {
         const drawer = this.monstersDrawer;
-        const data = this.layers.monsters.data;
-        const animatonDelta = 0.33333;
+        const data = this.trasitionVars.monsters;
         const tile = {
             c: 4,
-            r: 0
+            r: 0,
         };
         drawer.clear();
-        for (let mob of data) {
+        for (const monster of data) {
             drawer.drawTile(tile, {
-                x: mob.position.x - this.trasitionVars.viewport.x,
-                y: mob.position.y - this.trasitionVars.viewport.y,
+                x: monster.x - this.trasitionVars.viewport.x,
+                y: monster.y - this.trasitionVars.viewport.y,
             });
         }
     }
@@ -214,11 +231,11 @@ class Render {
 
         for (let i = 0; i < this.viewport.w; i++) {
             for (let j = 0; j < this.viewport.h; j++) {
-                let realPoint = {
+                const realPoint = {
                     x: i + this.viewport.x,
-                    y: j + this.viewport.y
-                }
-                const distantion = getDist(playerPosition, realPoint)
+                    y: j + this.viewport.y,
+                };
+                const distantion = getDist(playerPosition, realPoint);
                 if (distantion < playerVisionRange) {
                     if (this.layers.map.isVisible(realPoint, playerPosition)) {
                         drawer.clear({
@@ -226,7 +243,7 @@ class Render {
                             y: j + this.getViewportCorrection('y'),
                         });
 
-                        if (distantion <= playerVisionRange && distantion >= playerVisionRange-1) {
+                        if (distantion <= playerVisionRange && distantion >= playerVisionRange - 1) {
                             drawer.fill('rgba(0, 0, 0, 0.3)', {
                                 x: i + this.getViewportCorrection('x'),
                                 y: j + this.getViewportCorrection('y'),
@@ -251,14 +268,14 @@ class Render {
 
         for (let i = 0; i < this.viewport.w; i++) {
             for (let j = 0; j < this.viewport.h; j++) {
-                let point = {
+                const point = {
                     x: i,
-                    y: j
+                    y: j,
                 };
-                let cell = map[i + this.viewport.x][j + this.viewport.y];
+                const cell = map[i + this.viewport.x][j + this.viewport.y];
                 // console.log(map[i + this.viewport.x][j + this.viewport.y]);
                 drawer.drawText(`x: ${i + this.viewport.x}, y: ${j + this.viewport.y}`, 0, point);
-                if(cell.charaster !== undefined) {
+                if (cell.charaster !== undefined) {
                     drawer.drawText(`Prsn: ${cell.charaster}`, 1, point);
                 }
                 drawer.drawCellBorder(point);
