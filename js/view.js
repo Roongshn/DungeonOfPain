@@ -25,8 +25,14 @@ class Drawer {
             wallWithGreen: [0, 0, 48, 48, 0, 0],
             floor: [54, 108, 48, 48, 0, 0],
             door: [282, 600, 36, 42, 6, 6],
-            player: [708, 0, 48, 48, 0, 0],
-            goblin: [330, 120, 48, 48, 0, 0],
+            // игрок
+            solder0: [708, 0, 48, 48, 0, 0],
+            solder1: [708, 0, 48, 48, 0, 0],
+            knight0: [654, 0, 48, 48, 0, 0],
+            knight1: [654, 54, 48, 54, 0, -6],
+            // мобы
+            goblin0: [330, 120, 48, 48, 0, 6],
+            goblin1: [330, 174, 48, 48, 0, 0],
         };
     }
     drawTile(tile, point) {
@@ -97,6 +103,10 @@ class Render {
 
         this.lastRenderTime = Date.now();
         this.FPSLimiter = 1000 / 60; // 60 fps
+
+        this.lastAnimationTime = Date.now();
+        this.currentAnimationState = 0;
+        this.animationSpeed = 450;
 
         this.viewport = {
             h,
@@ -211,7 +221,7 @@ class Render {
         const data = this.trasitionVars.playerPosition;
 
         drawer.clear();
-        drawer.drawTile('player', {
+        drawer.drawTile('knight' + this.currentAnimationState, {
             x: data.x - this.trasitionVars.viewport.x,
             y: data.y - this.trasitionVars.viewport.y,
         });
@@ -221,7 +231,7 @@ class Render {
         const data = this.trasitionVars.monsters;
         drawer.clear();
         for (const monster of data) {
-            drawer.drawTile('goblin', {
+            drawer.drawTile('goblin' + this.currentAnimationState, {
                 x: monster.x - this.trasitionVars.viewport.x,
                 y: monster.y - this.trasitionVars.viewport.y,
             });
@@ -290,7 +300,14 @@ class Render {
         }
     }
     draw() {
-        if(Date.now() - this.lastRenderTime >= this.FPSLimiter) {
+        const now = Date.now();
+
+        if(now - this.lastAnimationTime >= this.animationSpeed) {
+            this.currentAnimationState = (this.currentAnimationState) ? 0 : 1;
+            this.lastAnimationTime = now;
+        }
+
+        if(now - this.lastRenderTime >= this.FPSLimiter) {
             this.transitVars();
 
             this.drawMap();
@@ -298,7 +315,7 @@ class Render {
             this.drawFogOfWar();
             this.drawMonsters();
             // this.drawDebugger();
-            this.lastRenderTime = Date.now();
+            this.lastRenderTime = now;
         }
 
     }
