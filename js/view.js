@@ -82,6 +82,9 @@ class Render {
         const h = $('#map').height() / TILESIZE;
         const w = $('#map').width() / TILESIZE;
 
+        this.lastRenderTime = Date.now();
+        this.FPSLimiter = 1000 / 60; // 60 fps
+
         this.viewport = {
             h,
             w,
@@ -283,12 +286,16 @@ class Render {
         }
     }
     draw() {
-        this.transitVars();
+        if(Date.now() - this.lastRenderTime >= this.FPSLimiter) {
+            this.transitVars();
 
-        this.drawMap();
-        this.drawPlayer();
-        this.drawFogOfWar();
-        this.drawMonsters();
-        // this.drawDebugger();
+            this.drawMap();
+            this.drawPlayer();
+            this.drawFogOfWar();
+            this.drawMonsters();
+            // this.drawDebugger();
+            this.lastRenderTime = Date.now();
+        }
+
     }
 }
