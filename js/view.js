@@ -18,9 +18,22 @@ class Drawer {
             this.ctx.lineWidth = 1;
             this.ctx.font = 'bold 6pt Open Sans';
         }
+
+        this.tilesList = {
+            // start x, start y, width, height, corretion x, corretion y
+            wall: [0, 54, 48, 48, 0, 0],
+            wallWithGreen: [0, 0, 48, 48, 0, 0],
+            floor: [54, 108, 48, 48, 0, 0],
+            door: [282, 600, 36, 42, 6, 6],
+            player: [708, 0, 48, 48, 0, 0],
+            goblin: [330, 120, 48, 48, 0, 0],
+        };
     }
     drawTile(tile, point) {
-        this.ctx.drawImage(this.tileset, tile.c * TILESIZE, tile.r * TILESIZE, TILESIZE, TILESIZE, point.x * TILESIZE, point.y * TILESIZE, TILESIZE, TILESIZE);
+        // this.ctx.drawImage(this.tileset, tile.c * TILESIZE, tile.r * TILESIZE, TILESIZE, TILESIZE, point.x * TILESIZE, point.y * TILESIZE, TILESIZE, TILESIZE);
+        // console.log(...this.tilesList[tile]);
+        const tileArr = this.tilesList[tile];
+        this.ctx.drawImage(this.tileset, tileArr[0], tileArr[1], tileArr[2], tileArr[3], point.x * TILESIZE + tileArr[4], point.y * TILESIZE + tileArr[5], tileArr[2], tileArr[3]);
     }
     drawText(text, strNumber, point) {
         const params = [
@@ -165,31 +178,30 @@ class Render {
                 const cell = data[i + this.viewport.x][j + this.viewport.y];
                 let tile;
                 switch (cell.type) {
+                // полное говно, надо переписать на айди тайлов
                 case 'WL':
-                    tile = { // полное говно, надо переписать на айди тайлов
-                        c: 0,
-                        r: cell.tile,
-                    };
-                    break;
-                case 'F':
-                    tile = {
-                        c: 1,
-                        r: 0,
-                    };
-                    break;
-                case 'D':
-                    tile = {
-                        c: 2,
-                        r: 0,
-                    };
-                    break;
-
-                }
-                if (tile) {
-                    drawer.drawTile(tile, {
+                    drawer.drawTile((cell.tile) ? 'wallWithGreen' : 'wall', {
                         x: i + this.getViewportCorrection('x'),
                         y: j + this.getViewportCorrection('y'),
                     });
+                    break;
+                case 'F':
+                    drawer.drawTile('floor', {
+                        x: i + this.getViewportCorrection('x'),
+                        y: j + this.getViewportCorrection('y'),
+                    });
+                    break;
+                case 'D':
+                    drawer.drawTile('wall', {
+                        x: i + this.getViewportCorrection('x'),
+                        y: j + this.getViewportCorrection('y'),
+                    });
+                    drawer.drawTile('door', {
+                        x: i + this.getViewportCorrection('x'),
+                        y: j + this.getViewportCorrection('y'),
+                    });
+                    break;
+
                 }
             }
         }
@@ -197,13 +209,9 @@ class Render {
     drawPlayer() {
         const drawer = this.playerDrawer;
         const data = this.trasitionVars.playerPosition;
-        const tile = {
-            c: 3,
-            r: 0,
-        };
 
         drawer.clear();
-        drawer.drawTile(tile, {
+        drawer.drawTile('player', {
             x: data.x - this.trasitionVars.viewport.x,
             y: data.y - this.trasitionVars.viewport.y,
         });
@@ -211,13 +219,9 @@ class Render {
     drawMonsters() {
         const drawer = this.monstersDrawer;
         const data = this.trasitionVars.monsters;
-        const tile = {
-            c: 4,
-            r: 0,
-        };
         drawer.clear();
         for (const monster of data) {
-            drawer.drawTile(tile, {
+            drawer.drawTile('goblin', {
                 x: monster.x - this.trasitionVars.viewport.x,
                 y: monster.y - this.trasitionVars.viewport.y,
             });
