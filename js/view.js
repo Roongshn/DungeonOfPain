@@ -186,9 +186,7 @@ class Render {
         for (let i = 0; i < this.viewport.w; i++) {
             for (let j = 0; j < this.viewport.h; j++) {
                 const cell = data[i + this.viewport.x][j + this.viewport.y];
-                let tile;
                 switch (cell.type) {
-                // полное говно, надо переписать на айди тайлов
                 case 'WL':
                     drawer.drawTile((cell.tile) ? 'wallWithGreen' : 'wall', {
                         x: i + this.getViewportCorrection('x'),
@@ -243,8 +241,8 @@ class Render {
         const playerVisionRange = this.layers.player.data.stats.visionRange + 1;
         const map = this.layers.map.data;
 
-        drawer.clear();
-        drawer.fill('rgba(0, 0, 0, 0.5)');
+        // drawer.clear();
+        drawer.fill('rgba(0, 0, 0, 1)');
 
         for (let i = 0; i < this.viewport.w; i++) {
             for (let j = 0; j < this.viewport.h; j++) {
@@ -252,14 +250,14 @@ class Render {
                     x: i + this.viewport.x,
                     y: j + this.viewport.y,
                 };
-                const distantion = getDist(playerPosition, realPoint);
-                if (distantion < playerVisionRange) {
-                    if (this.layers.map.isVisible(realPoint, playerPosition)) {
-                        drawer.clear({
-                            x: i + this.getViewportCorrection('x'),
-                            y: j + this.getViewportCorrection('y'),
-                        });
+                if(map[realPoint.x][realPoint.y].explored) {
+                    drawer.clear({
+                        x: i + this.getViewportCorrection('x'),
+                        y: j + this.getViewportCorrection('y'),
+                    });
 
+                    const distantion = getDist(playerPosition, realPoint);
+                    if (distantion < playerVisionRange && this.layers.map.isVisible(realPoint, playerPosition)) {
                         if (distantion <= playerVisionRange && distantion >= playerVisionRange - 1) {
                             drawer.fill('rgba(0, 0, 0, 0.3)', {
                                 x: i + this.getViewportCorrection('x'),
@@ -273,10 +271,15 @@ class Render {
                             });
                         }
                     }
+                    else {
+                        drawer.fill('rgba(0, 0, 0, 0.6)', {
+                            x: i + this.getViewportCorrection('x'),
+                            y: j + this.getViewportCorrection('y'),
+                        });
+                    }
                 }
             }
         }
-
     }
     drawDebugger() {
         const map = this.layers.map.data;

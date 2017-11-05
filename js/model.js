@@ -94,19 +94,7 @@ class Charaster {
             const xDirection = point.x - this.position.x;
             const yDirection = point.y - this.position.y;
 
-            // let i = 0;
-            // const delta = 0.2;
-
             this.map.moveCharaster(this.position, point, this.id);
-            // let moveSetInterval = setInterval(() => {
-            //     if(i * delta < 1) {
-            //         i++;
-            //         this.position.x = Number((this.position.x + (delta * xDirection)).toFixed(1));
-            //         this.position.y = Number((this.position.y + (delta * yDirection)).toFixed(1));
-            //     } else {
-            //         clearInterval(moveSetInterval);
-            //     }
-            // }, 60);
             this.position.x = Number((this.position.x + (xDirection)).toFixed(1));
             this.position.y = Number((this.position.y + (yDirection)).toFixed(1));
             return point;
