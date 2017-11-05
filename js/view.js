@@ -1,5 +1,4 @@
-// TODO: 1) переделать drawTile на id тайлов
-// 2) переделать draw чтобы принимал массив того, что нужно отрисовать
+// TODO: переделать draw чтобы принимал массив того, что нужно отрисовать
 
 const TILESIZE = 48;
 
@@ -36,8 +35,6 @@ class Drawer {
         };
     }
     drawTile(tile, point) {
-        // this.ctx.drawImage(this.tileset, tile.c * TILESIZE, tile.r * TILESIZE, TILESIZE, TILESIZE, point.x * TILESIZE, point.y * TILESIZE, TILESIZE, TILESIZE);
-        // console.log(...this.tilesList[tile]);
         const tileArr = this.tilesList[tile];
         this.ctx.drawImage(this.tileset, tileArr[0], tileArr[1], tileArr[2], tileArr[3], point.x * TILESIZE + tileArr[4], point.y * TILESIZE + tileArr[5], tileArr[2], tileArr[3]);
     }
@@ -98,8 +95,11 @@ class Render {
 
         this.layers = data;
 
-        const h = $('#map').height() / TILESIZE;
-        const w = $('#map').width() / TILESIZE;
+        const h = Math.floor($('#map').height() / TILESIZE);
+        const w = Math.floor($('#map').width() / TILESIZE);
+
+        $('canvas').attr('height', h * TILESIZE);
+        $('canvas').attr('width', w * TILESIZE);
 
         this.lastRenderTime = Date.now();
         this.FPSLimiter = 1000 / 60; // 60 fps
@@ -290,7 +290,6 @@ class Render {
                     y: j,
                 };
                 const cell = map[i + this.viewport.x][j + this.viewport.y];
-                // console.log(map[i + this.viewport.x][j + this.viewport.y]);
                 drawer.drawText(`x: ${i + this.viewport.x}, y: ${j + this.viewport.y}`, 0, point);
                 if (cell.charaster !== undefined) {
                     drawer.drawText(`Prsn: ${cell.charaster}`, 1, point);
