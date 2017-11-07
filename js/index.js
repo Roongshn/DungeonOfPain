@@ -21,12 +21,9 @@ const BASE_DURATION = 100;
 
 */
 
-// TODO:
-/*
-Рендер: просто цикл, который беспрерывно отрисовывет модель
-В перспективе можно добавить флаги обновления конкретных слоёв, чтобы не пререрисовывать постоянно
+/* TODO: В перспективе НУЖНО добавить флаги обновления конкретных слоёв, чтобы не пререрисовывать постоянно
 
-Вся игровая механика просто меняет модель с определенными задержками, рендер ничего про это не знает, и просто забирает обновления
+Вообще надо исследовать рендер на предмет избыточности
 
 */
 
@@ -36,6 +33,9 @@ class GameEngine {
 
         this.level = new Level(data);
         this.render = new Render(this.level.getData(), tileset);
+
+        this.exploreMap(this.level.player.position);
+
         this.render.draw();
 
         function renderCycle() {
@@ -45,7 +45,6 @@ class GameEngine {
         renderCycle();
     }
     movePlayer(shift) {
-        // const map = this.level.map;
         const player = this.level.player;
         const viewport = this.render.viewport;
 
@@ -70,15 +69,33 @@ class GameEngine {
             if (nextPosition.y + VIEWPORT_MOVE_DIST > viewport.y + viewport.h) {
                 viewportShift = [0, 1];
             }
+
             if (viewportShift) {
                 this.render.moveViewport(...viewportShift);
             }
-            else {
-                // this.render.drawPlayer(); // вот эту фигню надо заменить флагами для перерисовки только нужных слоёв, пока можно забить
-                // this.render.drawFogOfWar();
-            }
+
+            // разведка карты
+            this.exploreMap(nextPosition);
         }
         this.doMainCicle();
+    }
+    exploreMap(playerPosition) {
+        const map = this.level.map;
+        const playerVisionRange = this.level.player.stats.visionRange + 1;
+
+        for (let i = -playerVisionRange; i < playerVisionRange; i++) {
+            for (let j = -playerVisionRange; j < playerVisionRange; j++) {
+                const realPoint = {
+                    x: i + playerPosition.x,
+                    y: j + playerPosition.y,
+                };
+                if (map.isVisible(realPoint, playerPosition)) {
+                    // TODO: Есть идея сделать "забывание" карты. Тогда "разведанность" клетки станет числом, которое будет убавляться по какому-то принципу
+                    map.data[realPoint.x][realPoint.y].explored = true;
+                }
+            }
+        }
+
     }
     doMainCicle() {
         const player = this.level.player;
@@ -142,5 +159,5 @@ class GameEngine {
         }
     });
 
-    tileset.src = './tiles/tileset_b.png';
+    tileset.src = './tiles/full_tileset_b.png';
 })();

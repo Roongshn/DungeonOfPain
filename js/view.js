@@ -1,5 +1,4 @@
-// TODO: 1) переделать drawTile на id тайлов
-// 2) переделать draw чтобы принимал массив того, что нужно отрисовать
+// TODO: переделать draw чтобы принимал массив того, что нужно отрисовать
 
 const TILESIZE = 48;
 
@@ -18,9 +17,26 @@ class Drawer {
             this.ctx.lineWidth = 1;
             this.ctx.font = 'bold 6pt Open Sans';
         }
+
+        this.tilesList = {
+            // start x, start y, width, height, corretion x, corretion y
+            wall: [0, 54, 48, 48, 0, 0],
+            wallWithGreen: [0, 0, 48, 48, 0, 0],
+            floor: [54, 108, 48, 48, 0, 0],
+            door: [282, 600, 36, 42, 6, 6],
+            // игрок
+            solder0: [708, 0, 48, 48, 0, 0],
+            solder1: [708, 0, 48, 48, 0, 0],
+            knight0: [654, 0, 48, 48, 0, 0],
+            knight1: [654, 54, 48, 54, 0, -6],
+            // мобы
+            goblin0: [330, 120, 48, 48, 0, 6],
+            goblin1: [330, 174, 48, 48, 0, 0],
+        };
     }
     drawTile(tile, point) {
-        this.ctx.drawImage(this.tileset, tile.c * TILESIZE, tile.r * TILESIZE, TILESIZE, TILESIZE, point.x * TILESIZE, point.y * TILESIZE, TILESIZE, TILESIZE);
+        const tileArr = this.tilesList[tile];
+        this.ctx.drawImage(this.tileset, tileArr[0], tileArr[1], tileArr[2], tileArr[3], point.x * TILESIZE + tileArr[4], point.y * TILESIZE + tileArr[5], tileArr[2], tileArr[3]);
     }
     drawText(text, strNumber, point) {
         const params = [
@@ -79,8 +95,18 @@ class Render {
 
         this.layers = data;
 
-        const h = $('#map').height() / TILESIZE;
-        const w = $('#map').width() / TILESIZE;
+        const h = Math.floor($('#map').height() / TILESIZE);
+        const w = Math.floor($('#map').width() / TILESIZE);
+
+        $('canvas').attr('height', h * TILESIZE);
+        $('canvas').attr('width', w * TILESIZE);
+
+        this.lastRenderTime = Date.now();
+        this.FPSLimiter = 1000 / 60; // 60 fps
+
+        this.lastAnimationTime = Date.now();
+        this.currentAnimationState = 0;
+        this.animationSpeed = 450;
 
         this.viewport = {
             h,
@@ -98,7 +124,14 @@ class Render {
                 x: this.viewport.x,
                 y: this.viewport.y,
             },
+            monsters: [],
         };
+        for (const monster of this.layers.monsters.data) {
+            this.trasitionVars.monsters.push({
+                x: monster.position.x,
+                y: monster.position.y,
+            });
+        }
     }
     transitVars() {
         // TODO: отрисовка не успевает за моделью, наверное надо блокировать управление
@@ -122,6 +155,16 @@ class Render {
         if (this.trasitionVars.viewport.y !== this.viewport.y) {
             this.trasitionVars.viewport.y = getNextValue(this.viewport.y, this.trasitionVars.viewport.y);
         }
+        // monsters
+        const monsters = this.layers.monsters.data;
+        for (const index in this.trasitionVars.monsters) {
+            if (this.trasitionVars.monsters[index].x !== monsters[index].position.x) {
+                this.trasitionVars.monsters[index].x = getNextValue(monsters[index].position.x, this.trasitionVars.monsters[index].x);
+            }
+            if (this.trasitionVars.monsters[index].y !== monsters[index].position.y) {
+                this.trasitionVars.monsters[index].y = getNextValue(monsters[index].position.y, this.trasitionVars.monsters[index].y);
+            }
+        }
     }
     moveViewport(x, y) {
         if ((this.viewport.x + x) >= 0 && (this.viewport.x + x + this.viewport.w) <= this.layers.map.data.length) {
@@ -143,62 +186,52 @@ class Render {
         for (let i = 0; i < this.viewport.w; i++) {
             for (let j = 0; j < this.viewport.h; j++) {
                 const cell = data[i + this.viewport.x][j + this.viewport.y];
-                let tile;
                 switch (cell.type) {
                 case 'WL':
-                    tile = { // полное говно, надо переписать на айди тайлов
-                        c: 0,
-                        r: cell.tile,
-                    };
-                    break;
-                case 'F':
-                    tile = {
-                        c: 1,
-                        r: 0,
-                    };
-                    break;
-                case 'D':
-                    tile = {
-                        c: 2,
-                        r: 0,
-                    };
-                    break;
-
-                }
-                if (tile) {
-                    drawer.drawTile(tile, {
+                    drawer.drawTile((cell.tile) ? 'wallWithGreen' : 'wall', {
                         x: i + this.getViewportCorrection('x'),
                         y: j + this.getViewportCorrection('y'),
                     });
+                    break;
+                case 'F':
+                    drawer.drawTile('floor', {
+                        x: i + this.getViewportCorrection('x'),
+                        y: j + this.getViewportCorrection('y'),
+                    });
+                    break;
+                case 'D':
+                    drawer.drawTile('wall', {
+                        x: i + this.getViewportCorrection('x'),
+                        y: j + this.getViewportCorrection('y'),
+                    });
+                    drawer.drawTile('door', {
+                        x: i + this.getViewportCorrection('x'),
+                        y: j + this.getViewportCorrection('y'),
+                    });
+                    break;
+
                 }
             }
         }
     }
     drawPlayer() {
         const drawer = this.playerDrawer;
-        const tile = {
-            c: 3,
-            r: 0,
-        };
+        const data = this.trasitionVars.playerPosition;
 
         drawer.clear();
-        drawer.drawTile(tile, {
-            x: this.trasitionVars.playerPosition.x - this.trasitionVars.viewport.x,
-            y: this.trasitionVars.playerPosition.y - this.trasitionVars.viewport.y,
+        drawer.drawTile('knight' + this.currentAnimationState, {
+            x: data.x - this.trasitionVars.viewport.x,
+            y: data.y - this.trasitionVars.viewport.y,
         });
     }
     drawMonsters() {
         const drawer = this.monstersDrawer;
-        const data = this.layers.monsters.data;
-        const tile = {
-            c: 4,
-            r: 0,
-        };
+        const data = this.trasitionVars.monsters;
         drawer.clear();
-        for (const mob of data) {
-            drawer.drawTile(tile, {
-                x: mob.position.x - this.trasitionVars.viewport.x,
-                y: mob.position.y - this.trasitionVars.viewport.y,
+        for (const monster of data) {
+            drawer.drawTile('goblin' + this.currentAnimationState, {
+                x: monster.x - this.trasitionVars.viewport.x,
+                y: monster.y - this.trasitionVars.viewport.y,
             });
         }
     }
@@ -208,8 +241,8 @@ class Render {
         const playerVisionRange = this.layers.player.data.stats.visionRange + 1;
         // const map = this.layers.map.data;
 
-        drawer.clear();
-        drawer.fill('rgba(0, 0, 0, 0.5)');
+        // drawer.clear();
+        drawer.fill('rgba(0, 0, 0, 1)');
 
         for (let i = 0; i < this.viewport.w; i++) {
             for (let j = 0; j < this.viewport.h; j++) {
@@ -217,14 +250,14 @@ class Render {
                     x: i + this.viewport.x,
                     y: j + this.viewport.y,
                 };
-                const distantion = getDist(playerPosition, realPoint);
-                if (distantion < playerVisionRange) {
-                    if (this.layers.map.isVisible(realPoint, playerPosition)) {
-                        drawer.clear({
-                            x: i + this.getViewportCorrection('x'),
-                            y: j + this.getViewportCorrection('y'),
-                        });
+                if (map[realPoint.x][realPoint.y].explored) {
+                    drawer.clear({
+                        x: i + this.getViewportCorrection('x'),
+                        y: j + this.getViewportCorrection('y'),
+                    });
 
+                    const distantion = getDist(playerPosition, realPoint);
+                    if (distantion < playerVisionRange && this.layers.map.isVisible(realPoint, playerPosition)) {
                         if (distantion <= playerVisionRange && distantion >= playerVisionRange - 1) {
                             drawer.fill('rgba(0, 0, 0, 0.3)', {
                                 x: i + this.getViewportCorrection('x'),
@@ -238,10 +271,15 @@ class Render {
                             });
                         }
                     }
+                    else {
+                        drawer.fill('rgba(0, 0, 0, 0.6)', {
+                            x: i + this.getViewportCorrection('x'),
+                            y: j + this.getViewportCorrection('y'),
+                        });
+                    }
                 }
             }
         }
-
     }
     drawDebugger() {
         const map = this.layers.map.data;
@@ -264,12 +302,23 @@ class Render {
         }
     }
     draw() {
-        this.transitVars();
+        const now = Date.now();
 
-        this.drawMap();
-        this.drawPlayer();
-        this.drawFogOfWar();
-        this.drawMonsters();
-        // this.drawDebugger();
+        if (now - this.lastAnimationTime >= this.animationSpeed) {
+            this.currentAnimationState = (this.currentAnimationState) ? 0 : 1;
+            this.lastAnimationTime = now;
+        }
+
+        if (now - this.lastRenderTime >= this.FPSLimiter) {
+            this.transitVars();
+
+            this.drawMap();
+            this.drawPlayer();
+            this.drawFogOfWar();
+            this.drawMonsters();
+            // this.drawDebugger();
+            this.lastRenderTime = now;
+        }
+
     }
 }

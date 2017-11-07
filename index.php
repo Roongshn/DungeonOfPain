@@ -2,7 +2,8 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Dungeon of Pain 0.2.0</title>
+        <title>Dungeon of Pain 0.2.5</title>
+        <link rel="shortcut icon" href="favicon.ico">
         <link rel="stylesheet" href="./css/style.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
         <script type="text/javascript" src="./js/helpers.js"></script>
@@ -12,11 +13,11 @@
     </head>
     <body>
         <div class="game">
-            <canvas height='864' width='1440' id='map'>Your browser suck</canvas>
-            <canvas height='864' width='1440' id='monsters'>Your browser suck</canvas>
-            <canvas height='864' width='1440' id='player'>Your browser suck</canvas>
-            <canvas height='864' width='1440' id='fog'>Your browser suck</canvas>
-            <canvas height='864' width='1440' id='debugger'>Your browser suck</canvas>
+            <canvas id='map'>Your browser suck</canvas>
+            <canvas id='monsters'>Your browser suck</canvas>
+            <canvas id='player'>Your browser suck</canvas>
+            <canvas id='fog'>Your browser suck</canvas>
+            <canvas id='debugger'>Your browser suck</canvas>
         </div>
         <!--div class="game-params">
             <label>
