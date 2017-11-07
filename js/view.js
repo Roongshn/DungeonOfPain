@@ -239,7 +239,7 @@ class Render {
         const drawer = this.fogDrawer;
         const playerPosition = this.layers.player.data.position;
         const playerVisionRange = this.layers.player.data.stats.visionRange + 1;
-        // const map = this.layers.map.data;
+        const map = this.layers.map.data;
 
         // drawer.clear();
         drawer.fill('rgba(0, 0, 0, 1)');
