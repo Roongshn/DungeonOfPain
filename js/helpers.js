@@ -19,10 +19,11 @@ function getLine(point1, point2) { // первый параметр - прове
     const dY = Math.abs(pointF.y - pointS.y);
     const signX = pointS.x < pointF.x ? 1 : -1;
     const signY = pointS.y < pointF.y ? 1 : -1;
-    //
+
     let error = dX - dY;
-    //
+
     result.push({ 'x': pointF.x, 'y': pointF.y });
+
     while (pointS.x !== pointF.x || pointS.y !== pointF.y) {
         result.push({ 'x': pointS.x, 'y': pointS.y });
         const error2 = error * 2;
@@ -53,3 +54,8 @@ const requestAnimFrame = (() => {
         window.setTimeout(callback, 1000 / 60);
     };
 })();
+
+function fixMathError(value) {
+    const accuracy = 1;
+    return Number(value.toFixed(accuracy));
+}

@@ -58,6 +58,9 @@ class Drawer {
         ];
         this.ctx.strokeRect(...params);
     }
+    drawHealthBar(point) {
+        this.ctx.fillStyle = '#1C9340';
+    }
     fill(color, point) {
         this.ctx.fillStyle = color;
         let params = [0, 0, this.canvas.width, this.canvas.height];
@@ -137,7 +140,7 @@ class Render {
         // TODO: отрисовка не успевает за моделью, наверное надо блокировать управление
 
         function getNextValue(modelVar, transVar) {
-            return Number((transVar + 0.1 * Math.sign(modelVar - transVar)).toFixed(1));
+            return fixMathError(transVar + 0.1 * Math.sign(modelVar - transVar));
         }
 
         // player
