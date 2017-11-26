@@ -32,10 +32,10 @@ J строки
                 $this->max_room_size=2;
                 $this->min_room_size=5;
                 $this->tort=90;
-                $this->max_depth=2;
+                $this->max_depth=1;
                 $this->corridor_prob_red=0;
-                $this->min_corridor_length=20;
-                $this->max_corridor_length=30;
+                $this->min_corridor_length=5;
+                $this->max_corridor_length=10;
             }
             $this->corridor_prob=100;
         }
@@ -322,8 +322,6 @@ J строки
                     break;
                 }
 
-
-
             //тут надо проверять, не ушли ли мы за границу уровня
             //надо-ну так и проверяем
             if($start_i < 1){
@@ -426,7 +424,7 @@ J строки
                                'position'=>['x'=>$x,
                                             'y'=>$y],
                                 'dead'=>false,
-                                'state'=>'sleep', //sleep, hunt, attack
+                                'status'=>'sleep', //sleep, hunt, attack
 
                                'hp'=>10,
                                'max_hp'=>10,

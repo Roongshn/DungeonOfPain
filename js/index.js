@@ -44,14 +44,39 @@ class GameEngine {
         }
         renderCycle();
     }
+    exploreMap(playerPosition) {
+        const map = this.level.map;
+        const playerVisionRange = this.level.player.stats.visionRange + 1;
+
+        for (let i = -playerVisionRange; i < playerVisionRange; i++) {
+            for (let j = -playerVisionRange; j < playerVisionRange; j++) {
+                const realPoint = {
+                    x: i + playerPosition.x,
+                    y: j + playerPosition.y,
+                };
+                if (map.isVisible(realPoint, playerPosition)) {
+                    // TODO: Есть идея сделать "забывание" карты. Тогда "разведанность" клетки станет числом, которое будет убавляться по какому-то принципу
+                    map.data[realPoint.x][realPoint.y].explored = true;
+                }
+            }
+        }
+    }
     movePlayer(shift) {
         const player = this.level.player;
+        const map = this.level.map.data;
+        const monsters = this.level.monsters.data;
         const viewport = this.render.viewport;
 
         const nextPosition = {
             x: player.position.x + shift[0],
             y: player.position.y + shift[1],
         };
+
+        if (map[nextPosition.x][nextPosition.y].charaster !== undefined) {
+            // боёвка
+            monsters[map[nextPosition.x][nextPosition.y].charaster].health -= 1;
+        }
+
         const moveResult = player.move(nextPosition);
 
         if (moveResult !== false) {
@@ -79,24 +104,7 @@ class GameEngine {
         }
         this.doMainCicle();
     }
-    exploreMap(playerPosition) {
-        const map = this.level.map;
-        const playerVisionRange = this.level.player.stats.visionRange + 1;
 
-        for (let i = -playerVisionRange; i < playerVisionRange; i++) {
-            for (let j = -playerVisionRange; j < playerVisionRange; j++) {
-                const realPoint = {
-                    x: i + playerPosition.x,
-                    y: j + playerPosition.y,
-                };
-                if (map.isVisible(realPoint, playerPosition)) {
-                    // TODO: Есть идея сделать "забывание" карты. Тогда "разведанность" клетки станет числом, которое будет убавляться по какому-то принципу
-                    map.data[realPoint.x][realPoint.y].explored = true;
-                }
-            }
-        }
-
-    }
     doMainCicle() {
         const player = this.level.player;
         const monsters = this.level.monsters;
@@ -109,7 +117,7 @@ class GameEngine {
     }
 }
 
-(async () => {
+(async() => {
     const tileset = new Image();
     const data = await (await fetch('./php/generator.php')).json();
     let game;

@@ -1,7 +1,11 @@
 class Map {
     constructor(data) {
         this.data = data;
+
         this.isVisible = this.isVisible.bind(this);
+    }
+    addCharasters(monsters) {
+        this.monsters = monsters;
     }
     isTransparent(point) {
         const pointType = this.data[point.x][point.y].type;
@@ -21,16 +25,26 @@ class Map {
     }
     isMovable(point) {
         const cell = this.data[point.x][point.y];
-        if (cell.type === 'WL' || cell.type === '' || typeof cell.charaster === 'number') {
+
+        if (cell.type === 'WL' || cell.type === '') {
             return false;
         }
+
+        if (typeof cell.charaster === 'number' && cell.charaster === 999) {
+            return false;
+        }
+
+        if (typeof cell.charaster === 'number' && this.monsters[cell.charaster].status !== 'dead') {
+            return false;
+        }
+
         return true;
     }
     getNearest(point1, point2) { // наблюдатель, объект
         // возвращает ближайшую к второй точке точку из окрестности первой
         // TODO: Проверять, не является ли текущая уже ближайшей, а то мобы скачут немного
         let result = [];
-        const minDist = getDist(point1, point2);
+        let minDist = getDist(point1, point2);
         result = point1;
 
         const pointShihts = [
@@ -82,10 +96,21 @@ class Charaster {
         this.stats = {
             speed: data.speed,
             visionRange: data.vision_range,
+            health: data.max_hp,
         };
+        this._health = data.max_hp;
         this.position = data.position;
-        this.prevPosition = Object.assign({}, data.position); // предыдущее положение. Для рендера. // наверное уже не актуально
         this.duration = 0;
+        this.status = 'alive';
+    }
+    get health() {
+        return this._health;
+    }
+    set health(value) {
+        this._health = value > 0 ? value : 0;
+        if (this._health === 0) {
+            this.status = 'dead';
+        }
     }
     move(point) {
         this.duration += getActionDuration('move', this.stats.speed);
@@ -122,7 +147,7 @@ class Monster extends Charaster {
 
         // богатый внутренний мир
         // Уже не такой богатый, всё переехало в конструктор родителя
-        this.state = 'sleep';
+        this.status = 'sleep';
         this.memory = {};
     }
     remember(key, data) {
@@ -132,21 +157,24 @@ class Monster extends Charaster {
         this.memory[key] = undefined;
     }
     decide(player) { // принимает персонажа таким, какой он есть. со всеми достоинствами и недостатками.
+        if (this.health === 0) {
+            return;
+        }
         while (this.duration < player.duration) {
             const canSeePlayer = this.map.isVisible(player.position, this.position);
             // каждый раз, когда моб видит игрока - он запечатляется в его памяти
             if (canSeePlayer) {
                 this.remember('player', player.position);
             }
-            if (this.state === 'sleep') {
+            if (this.status === 'sleep') {
                 if (canSeePlayer) {
-                    this.state = 'awaken';
+                    this.status = 'awaken';
                 }
                 else {
                     this.duration = player.duration;
                 }
             }
-            if (this.state === 'awaken') {
+            if (this.status === 'awaken') {
                 if (canSeePlayer) { // если видит игрока - идёт к нему
                     this.move(this.map.getNearest(this.position, player.position));
                 }
@@ -154,7 +182,7 @@ class Monster extends Charaster {
                     this.move(this.map.getNearest(this.position, this.memory.player));
                 }
                 else { // если пришел, но всё ещё не видит - засыпает
-                    this.state = 'sleep';
+                    this.status = 'sleep';
                 }
             }
         }
@@ -175,6 +203,8 @@ class Level {
         this.map = new Map(data.map);
         this.player = new Player(999, data.player, this.map);
         this.monsters = new Monsters(data.monsters, this.map);
+
+        this.map.addCharasters(this.monsters.data); // стремноватый костыль, но подругому не придумал
     }
     getLayer(layer) {
         return this.data[layer];
@@ -187,9 +217,10 @@ class Level {
             },
             player: {
                 data: {
+                    health: this.player.health,
                     position: this.player.position,
-                    prevPosition: this.player.prevPosition,
                     stats: this.player.stats,
+                    // status: this.player.status,
                 },
             },
             monsters: {

@@ -24,6 +24,7 @@ class Drawer {
             wallWithGreen: [0, 0, 48, 48, 0, 0],
             floor: [54, 108, 48, 48, 0, 0],
             door: [282, 600, 36, 42, 6, 6],
+            skull: [620, 484, 30, 24, 9, 26],
             // игрок
             solder0: [708, 0, 48, 48, 0, 0],
             solder1: [708, 0, 48, 48, 0, 0],
@@ -58,8 +59,24 @@ class Drawer {
         ];
         this.ctx.strokeRect(...params);
     }
-    drawHealthBar(point) {
+    drawHealthBar(point, health, maxHealth) {
+        this.ctx.fillStyle = '#BB0F17';
+        let params = [
+            point.x * TILESIZE,
+            point.y * TILESIZE - (TILESIZE / 6),
+            TILESIZE,
+            TILESIZE / 8,
+        ];
+        this.ctx.fillRect(...params);
+
         this.ctx.fillStyle = '#1C9340';
+        params = [
+            point.x * TILESIZE,
+            point.y * TILESIZE - (TILESIZE / 6),
+            TILESIZE * health / (maxHealth / 100) / 100,
+            TILESIZE / 8,
+        ];
+        this.ctx.fillRect(...params);
     }
     fill(color, point) {
         this.ctx.fillStyle = color;
@@ -229,13 +246,29 @@ class Render {
     }
     drawMonsters() {
         const drawer = this.monstersDrawer;
-        const data = this.trasitionVars.monsters;
+        const monsters = this.layers.monsters.data;
+        const monstersPositions = this.trasitionVars.monsters;
+
         drawer.clear();
-        for (const monster of data) {
-            drawer.drawTile('goblin' + this.currentAnimationState, {
-                x: monster.x - this.trasitionVars.viewport.x,
-                y: monster.y - this.trasitionVars.viewport.y,
-            });
+
+        for (const i in monstersPositions) {
+            const monsterPos = monstersPositions[i];
+            const monsterInfo = monsters[i];
+
+            const point = {
+                x: monsterPos.x - this.trasitionVars.viewport.x,
+                y: monsterPos.y - this.trasitionVars.viewport.y,
+            };
+
+            if (monsterInfo.health > 0) {
+                drawer.drawTile('goblin' + this.currentAnimationState, point);
+                if (monsterInfo.health < monsterInfo.stats.health) {
+                    drawer.drawHealthBar(point, monsterInfo.health, monsterInfo.stats.health);
+                }
+            }
+            else {
+                drawer.drawTile('skull', point);
+            }
         }
     }
     drawFogOfWar() {
