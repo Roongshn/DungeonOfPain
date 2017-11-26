@@ -25,6 +25,8 @@ class Drawer {
             floor: [54, 108, 48, 48, 0, 0],
             door: [282, 600, 36, 42, 6, 6],
             skull: [620, 484, 30, 24, 9, 26],
+            lamp0: [67, 648, 36, 42, 6, 6],
+            lamp1: [121, 648, 36, 42, 6, 6],
             // игрок
             solder0: [708, 0, 48, 48, 0, 0],
             solder1: [708, 0, 48, 48, 0, 0],
@@ -219,6 +221,16 @@ class Render {
                         y: j + this.getViewportCorrection('y'),
                     });
                     break;
+                case 'L':
+                    drawer.drawTile('wall', {
+                        x: i + this.getViewportCorrection('x'),
+                        y: j + this.getViewportCorrection('y'),
+                    });
+                    drawer.drawTile('lamp' + this.currentAnimationState, {
+                        x: i + this.getViewportCorrection('x'),
+                        y: j + this.getViewportCorrection('y'),
+                    });
+                    break;
                 case 'D':
                     drawer.drawTile('wall', {
                         x: i + this.getViewportCorrection('x'),
@@ -350,8 +362,8 @@ class Render {
 
             this.drawMap();
             this.drawPlayer();
-            this.drawFogOfWar();
             this.drawMonsters();
+            this.drawFogOfWar();
             // this.drawDebugger();
             this.lastRenderTime = now;
         }

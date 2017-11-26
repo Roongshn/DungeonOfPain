@@ -9,7 +9,7 @@ class Map {
     }
     isTransparent(point) {
         const pointType = this.data[point.x][point.y].type;
-        if (pointType === 'WL' || pointType === 'D') {
+        if (pointType !== 'F') {
             return false;
         }
         return true;
@@ -26,7 +26,7 @@ class Map {
     isMovable(point) {
         const cell = this.data[point.x][point.y];
 
-        if (cell.type === 'WL' || cell.type === '') {
+        if (cell.type === 'WL' || cell.type === 'L' || cell.type === '') {
             return false;
         }
 

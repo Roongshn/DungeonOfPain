@@ -97,7 +97,7 @@ J строки
             for($i=0; $i<3;$i++)
             {
                 $this->filter_corridors();
-                 $this->filter_doors();
+                $this->filter_doors();
             }
 
             for($i=0;$i<$this->height; $i++){
@@ -117,14 +117,24 @@ J строки
             for($i=0;$i<$this->height; $i++){
                 for($j=0;$j<$this->width; $j++){
                     //настраиваем прозрачности
-                    if($this->map[$i][$j]['type'] == 'WL' || $this->map[$i][$j]['type'] == 'D')
-                        $this->map[$i][$j]['transparent'] = false;
+                    // if($this->map[$i][$j]['type'] == 'WL' || $this->map[$i][$j]['type'] == 'D')
+                        // $this->map[$i][$j]['transparent'] = false;
                     //разбавляем текстуры
                     if($this->map[$i][$j]['type'] == 'WL' && rand(0,3) == 0) {
                         $this->map[$i][$j]['tile'] = 1;
                     }
                     else {
                         $this->map[$i][$j]['tile'] = 0;
+                    }
+
+                    //накидываем факелы
+                    if($this->map[$i][$j]['type'] == 'D'
+                        && $this->map[$i][$j+1]['type'] == 'F' //снизу пол
+                        && $this->map[$i-1][$j+1]['type'] == 'F'
+                        && $this->map[$i+1][$j+1]['type'] == 'F'
+                    ) {
+                        $this->map[$i+1][$j]['type'] = 'L'; //светильник
+                        $this->map[$i-1][$j]['type'] = 'L'; //светильник
                     }
                 }
             }
@@ -156,7 +166,6 @@ J строки
                 echo '|<br>';
             }
         }
-
 
         public function return_level_json() {
             $result['map']=$this->map;
@@ -367,6 +376,7 @@ J строки
             // [i+m j]      [i j]
             // новые коридоры
             //пока по одному
+            // TODO: Надо допилить до нескольких, а то скучно
             if($depth < $this->max_depth) {
                 $depth++;
                 if(rand(0,99) <= $this->corridor_prob && $this->get_opposite_direction($direction) != 0)
@@ -393,8 +403,6 @@ J строки
             }
 
         }
-
-
 
         public function add_player($x,$y) {
             $this->player['position']['x']=$x;
