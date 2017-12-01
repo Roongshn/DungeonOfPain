@@ -10,13 +10,13 @@ class Drawer {
             this.tileset = tileset;
         }
 
-        if (canvasId === 'debugger') {
-            this.ctx.textBaseline = 'top';
-            this.ctx.fillStyle = '#FFF';
-            this.ctx.strokeStyle = '#FFF';
-            this.ctx.lineWidth = 1;
-            this.ctx.font = 'bold 6pt Open Sans';
-        }
+        // if (canvasId === 'debugger') {
+        this.ctx.textBaseline = 'top';
+        this.ctx.fillStyle = '#FFF';
+        this.ctx.strokeStyle = '#FFF';
+        this.ctx.lineWidth = 1;
+        this.ctx.font = 'bold 20pt Open Sans';
+        // }
 
         this.tilesList = {
             // start x, start y, width, height, corretion x, corretion y
@@ -41,15 +41,16 @@ class Drawer {
         const tileArr = this.tilesList[tile];
         this.ctx.drawImage(this.tileset, tileArr[0], tileArr[1], tileArr[2], tileArr[3], point.x * TILESIZE + tileArr[4], point.y * TILESIZE + tileArr[5], tileArr[2], tileArr[3]);
     }
-    drawText(text, strNumber, point) {
+    drawText(text, strNumber, point, config) {
         const params = [
             text,
             point.x * TILESIZE + 3,
             point.y * TILESIZE + 2 + (12 * strNumber),
         ];
-        this.ctx.strokeStyle = '#000';
+        this.ctx.strokeStyle = config.fillColor;
+        this.ctx.fillStyle = config.fillColor;
+        this.ctx.font = 'bold 14px Open Sans';
         this.ctx.strokeText(...params);
-        this.ctx.strokeStyle = '#FFF';
         this.ctx.fillText(...params);
     }
     drawCellBorder(point) {
@@ -114,6 +115,7 @@ class Render {
         this.monstersDrawer = new Drawer('monsters', tileset);
         this.fogDrawer = new Drawer('fog', tileset);
         this.debuggerDrawer = new Drawer('debugger');
+        this.infoDrawer = new Drawer('info');
 
         this.layers = data;
 
@@ -152,8 +154,10 @@ class Render {
             this.trasitionVars.monsters.push({
                 x: monster.position.x,
                 y: monster.position.y,
+                health: monster.health,
             });
         }
+        this.emergingNumbers = [];
     }
     transitVars() {
         // TODO: отрисовка не успевает за моделью, наверное надо блокировать управление
@@ -185,6 +189,18 @@ class Render {
             }
             if (this.trasitionVars.monsters[index].y !== monsters[index].position.y) {
                 this.trasitionVars.monsters[index].y = getNextValue(monsters[index].position.y, this.trasitionVars.monsters[index].y);
+            }
+            if (this.trasitionVars.monsters[index].health !== monsters[index].health) {
+                this.emergingNumbers.push({
+                    value: monsters[index].health - this.trasitionVars.monsters[index].health,
+                    opacity: 1,
+                    type: 'health',
+                    position: {
+                        x: this.trasitionVars.monsters[index].x,
+                        y: this.trasitionVars.monsters[index].y,
+                    },
+                });
+                this.trasitionVars.monsters[index].health = monsters[index].health;
             }
         }
     }
@@ -257,11 +273,13 @@ class Render {
         });
     }
     drawMonsters() {
-        const drawer = this.monstersDrawer;
+        const monstersDrawer = this.monstersDrawer;
+        const infoDrawer = this.infoDrawer;
         const monsters = this.layers.monsters.data;
         const monstersPositions = this.trasitionVars.monsters;
 
-        drawer.clear();
+        monstersDrawer.clear();
+        infoDrawer.clear();
 
         for (const i in monstersPositions) {
             const monsterPos = monstersPositions[i];
@@ -273,13 +291,13 @@ class Render {
             };
 
             if (monsterInfo.health > 0) {
-                drawer.drawTile('goblin' + this.currentAnimationState, point);
+                monstersDrawer.drawTile('goblin' + this.currentAnimationState, point);
                 if (monsterInfo.health < monsterInfo.stats.health) {
-                    drawer.drawHealthBar(point, monsterInfo.health, monsterInfo.stats.health);
+                    infoDrawer.drawHealthBar(point, monsterInfo.health, monsterInfo.stats.health);
                 }
             }
             else {
-                drawer.drawTile('skull', point);
+                monstersDrawer.drawTile('skull', point);
             }
         }
     }
@@ -329,6 +347,24 @@ class Render {
             }
         }
     }
+    drawInfo() {
+        const infoDrawer = this.infoDrawer;
+
+        this.emergingNumbers.map((number) => {
+            if (number.opacity < 0) {return;}
+
+            const point = {
+                x: number.position.x - this.trasitionVars.viewport.x + 0.3,
+                y: number.position.y - this.trasitionVars.viewport.y,
+            };
+
+            infoDrawer.drawText(number.value, -1, point, {
+                fillColor: (number.value > 0) ? `rgba(0, 176, 27, ${number.opacity})` : `rgba(237, 28, 36, ${number.opacity})`,
+            });
+            number.position.y -= 0.01;
+            number.opacity -= 0.02;
+        });
+    }
     drawDebugger() {
         const map = this.layers.map.data;
         const drawer = this.debuggerDrawer;
@@ -363,6 +399,7 @@ class Render {
             this.drawMap();
             this.drawPlayer();
             this.drawMonsters();
+            this.drawInfo();
             this.drawFogOfWar();
             // this.drawDebugger();
             this.lastRenderTime = now;

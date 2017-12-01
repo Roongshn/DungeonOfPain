@@ -10,6 +10,7 @@
         <script type="text/javascript" src="./js/model.js"></script>
         <script type="text/javascript" src="./js/view.js"></script>
         <script type="text/javascript" src="./js/index.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     </head>
     <body>
         <div class="b-player">
@@ -22,6 +23,7 @@
             <canvas id='map'>Your browser suck</canvas>
             <canvas id='monsters'>Your browser suck</canvas>
             <canvas id='player'>Your browser suck</canvas>
+            <canvas id='info'>Your browser suck</canvas>
             <canvas id='fog'>Your browser suck</canvas>
             <canvas id='debugger'>Your browser suck</canvas>
         </div>

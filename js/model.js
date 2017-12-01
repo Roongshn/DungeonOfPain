@@ -1,7 +1,7 @@
 class Map {
     constructor(data) {
         this.data = data;
-
+        this.monsters = null;
         this.isVisible = this.isVisible.bind(this);
     }
     addCharasters(monsters) {
@@ -195,6 +195,7 @@ class Monsters {
         data.forEach((monster, i) => {
             this.data[i] = new Monster(i, monster, map);
         });
+        map.monsters = this.data; // Я родился!(с) Сева
     }
 }
 
@@ -204,7 +205,7 @@ class Level {
         this.player = new Player(999, data.player, this.map);
         this.monsters = new Monsters(data.monsters, this.map);
 
-        this.map.addCharasters(this.monsters.data); // стремноватый костыль, но подругому не придумал
+        // this.map.addCharasters(this.monsters.data); // стремноватый костыль, но подругому не придумал
     }
     getLayer(layer) {
         return this.data[layer];
