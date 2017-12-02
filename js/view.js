@@ -1,5 +1,4 @@
 // TODO: переделать draw чтобы принимал массив того, что нужно отрисовать
-
 const TILESIZE = 48;
 
 class Drawer {
@@ -111,11 +110,12 @@ class Drawer {
 class Render {
     constructor(data, tileset) {
         this.mapDrawer = new Drawer('map', tileset);
-        this.playerDrawer = new Drawer('player', tileset);
-        this.monstersDrawer = new Drawer('monsters', tileset);
-        this.fogDrawer = new Drawer('fog', tileset);
-        this.debuggerDrawer = new Drawer('debugger');
+        this.charastersDrawer = new Drawer('charasters', tileset);
+        this.floorDrawer = new Drawer('floor', tileset);
         this.infoDrawer = new Drawer('info');
+        this.fogDrawer = new Drawer('fog', tileset);
+
+        this.debuggerDrawer = new Drawer('debugger');
 
         this.layers = data;
 
@@ -262,24 +262,24 @@ class Render {
             }
         }
     }
-    drawPlayer() {
-        const drawer = this.playerDrawer;
-        const data = this.trasitionVars.playerPosition;
-
-        drawer.clear();
-        drawer.drawTile('knight' + this.currentAnimationState, {
-            x: data.x - this.trasitionVars.viewport.x,
-            y: data.y - this.trasitionVars.viewport.y,
-        });
-    }
-    drawMonsters() {
-        const monstersDrawer = this.monstersDrawer;
+    drawCharasters() {
+        const charastersDrawer = this.charastersDrawer;
         const infoDrawer = this.infoDrawer;
-        const monsters = this.layers.monsters.data;
+        const floorDrawer = this.floorDrawer;
+
+        const playerPositions = this.trasitionVars.playerPosition;
         const monstersPositions = this.trasitionVars.monsters;
 
-        monstersDrawer.clear();
+        const monsters = this.layers.monsters.data;
+
+        charastersDrawer.clear();
         infoDrawer.clear();
+        floorDrawer.clear();
+
+        charastersDrawer.drawTile('knight' + this.currentAnimationState, {
+            x: playerPositions.x - this.trasitionVars.viewport.x,
+            y: playerPositions.y - this.trasitionVars.viewport.y,
+        });
 
         for (const i in monstersPositions) {
             const monsterPos = monstersPositions[i];
@@ -291,15 +291,35 @@ class Render {
             };
 
             if (monsterInfo.health > 0) {
-                monstersDrawer.drawTile('goblin' + this.currentAnimationState, point);
+                charastersDrawer.drawTile('goblin' + this.currentAnimationState, point);
                 if (monsterInfo.health < monsterInfo.stats.health) {
                     infoDrawer.drawHealthBar(point, monsterInfo.health, monsterInfo.stats.health);
                 }
             }
             else {
-                monstersDrawer.drawTile('skull', point);
+                floorDrawer.drawTile('skull', point);
             }
         }
+    }
+    drawEffects() {
+        // TODO: нехорошо полагаться на очисту слоя в предыдущем методе, надо или это туда перенести, или что-то придумать с очисткой
+        // TODO: сейчас объект хранит все старые еффекты, надо придумать очистку
+        const infoDrawer = this.infoDrawer;
+
+        this.emergingNumbers.map((number) => {
+            if (number.opacity < 0) {return;}
+
+            const point = {
+                x: number.position.x - this.trasitionVars.viewport.x + 0.3,
+                y: number.position.y - this.trasitionVars.viewport.y,
+            };
+
+            infoDrawer.drawText(number.value, -1, point, {
+                fillColor: (number.value > 0) ? `rgba(0, 176, 27, ${number.opacity})` : `rgba(237, 28, 36, ${number.opacity})`,
+            });
+            number.position.y -= 0.02;
+            number.opacity -= 0.02;
+        });
     }
     drawFogOfWar() {
         const drawer = this.fogDrawer;
@@ -347,24 +367,6 @@ class Render {
             }
         }
     }
-    drawInfo() {
-        const infoDrawer = this.infoDrawer;
-
-        this.emergingNumbers.map((number) => {
-            if (number.opacity < 0) {return;}
-
-            const point = {
-                x: number.position.x - this.trasitionVars.viewport.x + 0.3,
-                y: number.position.y - this.trasitionVars.viewport.y,
-            };
-
-            infoDrawer.drawText(number.value, -1, point, {
-                fillColor: (number.value > 0) ? `rgba(0, 176, 27, ${number.opacity})` : `rgba(237, 28, 36, ${number.opacity})`,
-            });
-            number.position.y -= 0.01;
-            number.opacity -= 0.02;
-        });
-    }
     drawDebugger() {
         const map = this.layers.map.data;
         const drawer = this.debuggerDrawer;
@@ -397,9 +399,8 @@ class Render {
             this.transitVars();
 
             this.drawMap();
-            this.drawPlayer();
-            this.drawMonsters();
-            this.drawInfo();
+            this.drawCharasters();
+            this.drawEffects();
             this.drawFogOfWar();
             // this.drawDebugger();
             this.lastRenderTime = now;

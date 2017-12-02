@@ -21,8 +21,8 @@
         </div>
         <div class="game">
             <canvas id='map'>Your browser suck</canvas>
-            <canvas id='monsters'>Your browser suck</canvas>
-            <canvas id='player'>Your browser suck</canvas>
+            <canvas id='floor'>Your browser suck</canvas>
+            <canvas id='charasters'>Your browser suck</canvas>
             <canvas id='info'>Your browser suck</canvas>
             <canvas id='fog'>Your browser suck</canvas>
             <canvas id='debugger'>Your browser suck</canvas>

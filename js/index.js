@@ -104,7 +104,6 @@ class GameEngine {
         }
         this.doMainCicle();
     }
-
     doMainCicle() {
         const player = this.level.player;
         const monsters = this.level.monsters;
@@ -113,7 +112,6 @@ class GameEngine {
         monsters.data.forEach((monster) => {
             monster.decide(player, map);
         });
-        this.render.drawMonsters();
     }
 }
 
