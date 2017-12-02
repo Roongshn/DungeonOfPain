@@ -43,6 +43,48 @@ class GameEngine {
             requestAnimFrame(renderCycle);
         }
         renderCycle();
+
+        addEventListener('keydown', (e) => {
+            if (this.render.animationInProgress) {return;}
+            // прокрутка карты
+            if (e.keyCode >= 37 && e.keyCode <= 40) {
+                let params;
+                switch (e.keyCode) {
+                case 38:
+                    params = [0, -1];
+                    break;
+                case 39:
+                    params = [1, 0];
+                    break;
+                case 40:
+                    params = [0, 1];
+                    break;
+                case 37:
+                    params = [-1, 0];
+                    break;
+                }
+                this.render.moveViewport(...params);
+            }
+
+            if (e.keyCode === 87 || e.keyCode === 65 || e.keyCode === 83 || e.keyCode === 68) {
+                let playerShift;
+                switch (e.keyCode) {
+                case 87:
+                    playerShift = [0, -1];
+                    break;
+                case 65:
+                    playerShift = [-1, 0];
+                    break;
+                case 83:
+                    playerShift = [0, 1];
+                    break;
+                case 68:
+                    playerShift = [1, 0];
+                    break;
+                }
+                this.movePlayer(playerShift);
+            }
+        });
     }
     exploreMap(playerPosition) {
         const map = this.level.map;
@@ -118,51 +160,10 @@ class GameEngine {
 (async() => {
     const tileset = new Image();
     const data = await (await fetch('./php/generator.php')).json();
-    let game;
+    // const game;
 
     tileset.addEventListener('load', () => {
-        game = new GameEngine(data, tileset);
-    });
-
-    addEventListener('keydown', (e) => {
-        // прокрутка карты
-        if (e.keyCode >= 37 && e.keyCode <= 40) {
-            let params;
-            switch (e.keyCode) {
-            case 38:
-                params = [0, -1];
-                break;
-            case 39:
-                params = [1, 0];
-                break;
-            case 40:
-                params = [0, 1];
-                break;
-            case 37:
-                params = [-1, 0];
-                break;
-            }
-            game.render.moveViewport(...params);
-        }
-
-        if (e.keyCode === 87 || e.keyCode === 65 || e.keyCode === 83 || e.keyCode === 68) {
-            let playerShift;
-            switch (e.keyCode) {
-            case 87:
-                playerShift = [0, -1];
-                break;
-            case 65:
-                playerShift = [-1, 0];
-                break;
-            case 83:
-                playerShift = [0, 1];
-                break;
-            case 68:
-                playerShift = [1, 0];
-                break;
-            }
-            game.movePlayer(playerShift);
-        }
+        const game = new GameEngine(data, tileset);
     });
 
     tileset.src = './tiles/full_tileset_b.png';

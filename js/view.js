@@ -131,6 +131,7 @@ class Render {
         this.lastAnimationTime = Date.now();
         this.currentAnimationState = 0;
         this.animationSpeed = 450;
+        this.animationInProgress = false;
 
         this.viewport = {
             h,
@@ -160,35 +161,40 @@ class Render {
         this.emergingNumbers = [];
     }
     transitVars() {
-        // TODO: отрисовка не успевает за моделью, наверное надо блокировать управление
-
         function getNextValue(modelVar, transVar) {
             return fixMathError(transVar + 0.1 * Math.sign(modelVar - transVar));
         }
+        let animationInProgress = false;
 
         // player
         const player = this.layers.player.data;
         if (this.trasitionVars.playerPosition.x !== player.position.x) {
             this.trasitionVars.playerPosition.x = getNextValue(player.position.x, this.trasitionVars.playerPosition.x);
+            animationInProgress = true;
         }
         if (this.trasitionVars.playerPosition.y !== player.position.y) {
             this.trasitionVars.playerPosition.y = getNextValue(player.position.y, this.trasitionVars.playerPosition.y);
+            animationInProgress = true;
         }
         // viewport
         if (this.trasitionVars.viewport.x !== this.viewport.x) {
             this.trasitionVars.viewport.x = getNextValue(this.viewport.x, this.trasitionVars.viewport.x);
+            animationInProgress = true;
         }
         if (this.trasitionVars.viewport.y !== this.viewport.y) {
             this.trasitionVars.viewport.y = getNextValue(this.viewport.y, this.trasitionVars.viewport.y);
+            animationInProgress = true;
         }
         // monsters
         const monsters = this.layers.monsters.data;
         for (const index in this.trasitionVars.monsters) {
             if (this.trasitionVars.monsters[index].x !== monsters[index].position.x) {
                 this.trasitionVars.monsters[index].x = getNextValue(monsters[index].position.x, this.trasitionVars.monsters[index].x);
+                animationInProgress = true;
             }
             if (this.trasitionVars.monsters[index].y !== monsters[index].position.y) {
                 this.trasitionVars.monsters[index].y = getNextValue(monsters[index].position.y, this.trasitionVars.monsters[index].y);
+                animationInProgress = true;
             }
             if (this.trasitionVars.monsters[index].health !== monsters[index].health) {
                 this.emergingNumbers.push({
@@ -201,8 +207,10 @@ class Render {
                     },
                 });
                 this.trasitionVars.monsters[index].health = monsters[index].health;
+                animationInProgress = true;
             }
         }
+        this.animationInProgress = animationInProgress;
     }
     moveViewport(x, y) {
         if ((this.viewport.x + x) >= 0 && (this.viewport.x + x + this.viewport.w) <= this.layers.map.data.length) {
