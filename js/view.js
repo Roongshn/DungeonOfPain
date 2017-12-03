@@ -24,8 +24,8 @@ class Drawer {
             floor: [54, 108, 48, 48, 0, 0],
             door: [282, 600, 36, 42, 6, 6],
             skull: [620, 484, 30, 24, 9, 26],
-            lamp0: [67, 648, 36, 42, 6, 6],
-            lamp1: [121, 648, 36, 42, 6, 6],
+            lamp0: [67, 648, 36, 42, 7, 7],
+            lamp1: [121, 648, 36, 42, 7, 7],
             // игрок
             solder0: [708, 0, 48, 48, 0, 0],
             solder1: [708, 0, 48, 48, 0, 0],
@@ -38,7 +38,18 @@ class Drawer {
     }
     drawTile(tile, point) {
         const tileArr = this.tilesList[tile];
-        this.ctx.drawImage(this.tileset, tileArr[0], tileArr[1], tileArr[2], tileArr[3], point.x * TILESIZE + tileArr[4], point.y * TILESIZE + tileArr[5], tileArr[2], tileArr[3]);
+        const params = [
+            this.tileset,
+            tileArr[0],
+            tileArr[1],
+            tileArr[2],
+            tileArr[3],
+            Math.round(point.x * TILESIZE + tileArr[4]),
+            Math.round(point.y * TILESIZE + tileArr[5]),
+            tileArr[2],
+            tileArr[3],
+        ];
+        this.ctx.drawImage(...params);
     }
     drawText(text, strNumber, point, config) {
         const params = [
@@ -85,8 +96,8 @@ class Drawer {
         let params = [0, 0, this.canvas.width, this.canvas.height];
         if (point) {
             params = [
-                point.x * TILESIZE,
-                point.y * TILESIZE,
+                Math.round(point.x * TILESIZE),
+                Math.round(point.y * TILESIZE),
                 TILESIZE,
                 TILESIZE,
             ];
@@ -162,7 +173,7 @@ class Render {
     }
     transitVars() {
         function getNextValue(modelVar, transVar) {
-            return fixMathError(transVar + 0.1 * Math.sign(modelVar - transVar));
+            return fixMathError(transVar + 0.1 * Math.sign(modelVar - transVar)); // TODO: 0.1 ведет к огромному количеству округлений везде далее. Надо подумать об этом
         }
         let animationInProgress = false;
 
