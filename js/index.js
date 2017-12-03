@@ -25,6 +25,8 @@ const BASE_DURATION = 100;
 
 Вообще надо исследовать рендер на предмет избыточности
 
+Попробовать уменьшить количество пикселей
+
 */
 
 class GameEngine {
@@ -35,8 +37,6 @@ class GameEngine {
         this.render = new Render(this.level.getData(), tileset);
 
         this.exploreMap(this.level.player.position);
-
-        this.render.draw();
 
         function renderCycle() {
             that.render.draw();

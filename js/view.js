@@ -223,49 +223,94 @@ class Render {
     getViewportCorrection(axis) {
         return this.viewport[axis] - this.trasitionVars.viewport[axis];
     }
-    drawMap() {
-        const drawer = this.mapDrawer;
-        const data = this.layers.map.data;
+    drawMapAndFog() {
+        const mapDrawer = this.mapDrawer;
+        const fogDrawer = this.fogDrawer;
 
-        drawer.fill('#000');
+        const playerPosition = this.layers.player.data.position;
+        const playerVisionRange = this.layers.player.data.stats.visionRange + 1;
+
+        const map = this.layers.map;
+        const mapData = this.layers.map.data;
+
+        mapDrawer.clear();
+        fogDrawer.fill('rgba(0, 0, 0, 1)');
 
         for (let i = 0; i < this.viewport.w; i++) {
             for (let j = 0; j < this.viewport.h; j++) {
-                const cell = data[i + this.viewport.x][j + this.viewport.y];
+
+                const realPoint = {
+                    x: i + this.viewport.x,
+                    y: j + this.viewport.y,
+                };
+                const cell = mapData[realPoint.x][realPoint.y];
+
+                // рисуем карту
+
                 switch (cell.type) {
                 case 'WL':
-                    drawer.drawTile((cell.tile) ? 'wallWithGreen' : 'wall', {
+                    mapDrawer.drawTile((cell.tile) ? 'wallWithGreen' : 'wall', {
                         x: i + this.getViewportCorrection('x'),
                         y: j + this.getViewportCorrection('y'),
                     });
                     break;
                 case 'F':
-                    drawer.drawTile('floor', {
+                    mapDrawer.drawTile('floor', {
                         x: i + this.getViewportCorrection('x'),
                         y: j + this.getViewportCorrection('y'),
                     });
                     break;
                 case 'L':
-                    drawer.drawTile('wall', {
+                    mapDrawer.drawTile('wall', {
                         x: i + this.getViewportCorrection('x'),
                         y: j + this.getViewportCorrection('y'),
                     });
-                    drawer.drawTile('lamp' + this.currentAnimationState, {
+                    mapDrawer.drawTile('lamp' + this.currentAnimationState, {
                         x: i + this.getViewportCorrection('x'),
                         y: j + this.getViewportCorrection('y'),
                     });
                     break;
                 case 'D':
-                    drawer.drawTile('wall', {
+                    mapDrawer.drawTile('wall', {
                         x: i + this.getViewportCorrection('x'),
                         y: j + this.getViewportCorrection('y'),
                     });
-                    drawer.drawTile('door', {
+                    mapDrawer.drawTile('door', {
                         x: i + this.getViewportCorrection('x'),
                         y: j + this.getViewportCorrection('y'),
                     });
                     break;
+                }
 
+                // рисуем туман войны
+
+                if (cell.explored) {
+                    fogDrawer.clear({
+                        x: i + this.getViewportCorrection('x'),
+                        y: j + this.getViewportCorrection('y'),
+                    });
+
+                    const distantion = getDist(playerPosition, realPoint);
+                    if (distantion < playerVisionRange && map.isVisible(realPoint, playerPosition)) {
+                        if (distantion <= playerVisionRange && distantion >= playerVisionRange - 1) {
+                            fogDrawer.fill('rgba(0, 0, 0, 0.3)', {
+                                x: i + this.getViewportCorrection('x'),
+                                y: j + this.getViewportCorrection('y'),
+                            });
+                        }
+                        if (distantion < playerVisionRange - 1 && distantion >= playerVisionRange - 2) {
+                            fogDrawer.fill('rgba(0, 0, 0, 0.2)', {
+                                x: i + this.getViewportCorrection('x'),
+                                y: j + this.getViewportCorrection('y'),
+                            });
+                        }
+                    }
+                    else {
+                        fogDrawer.fill('rgba(0, 0, 0, 0.6)', {
+                            x: i + this.getViewportCorrection('x'),
+                            y: j + this.getViewportCorrection('y'),
+                        });
+                    }
                 }
             }
         }
@@ -329,52 +374,6 @@ class Render {
             number.opacity -= 0.02;
         });
     }
-    drawFogOfWar() {
-        const drawer = this.fogDrawer;
-        const playerPosition = this.layers.player.data.position;
-        const playerVisionRange = this.layers.player.data.stats.visionRange + 1;
-        const map = this.layers.map.data;
-
-        // drawer.clear();
-        drawer.fill('rgba(0, 0, 0, 1)');
-
-        for (let i = 0; i < this.viewport.w; i++) {
-            for (let j = 0; j < this.viewport.h; j++) {
-                const realPoint = {
-                    x: i + this.viewport.x,
-                    y: j + this.viewport.y,
-                };
-                if (map[realPoint.x][realPoint.y].explored) {
-                    drawer.clear({
-                        x: i + this.getViewportCorrection('x'),
-                        y: j + this.getViewportCorrection('y'),
-                    });
-
-                    const distantion = getDist(playerPosition, realPoint);
-                    if (distantion < playerVisionRange && this.layers.map.isVisible(realPoint, playerPosition)) {
-                        if (distantion <= playerVisionRange && distantion >= playerVisionRange - 1) {
-                            drawer.fill('rgba(0, 0, 0, 0.3)', {
-                                x: i + this.getViewportCorrection('x'),
-                                y: j + this.getViewportCorrection('y'),
-                            });
-                        }
-                        if (distantion < playerVisionRange - 1 && distantion >= playerVisionRange - 2) {
-                            drawer.fill('rgba(0, 0, 0, 0.2)', {
-                                x: i + this.getViewportCorrection('x'),
-                                y: j + this.getViewportCorrection('y'),
-                            });
-                        }
-                    }
-                    else {
-                        drawer.fill('rgba(0, 0, 0, 0.6)', {
-                            x: i + this.getViewportCorrection('x'),
-                            y: j + this.getViewportCorrection('y'),
-                        });
-                    }
-                }
-            }
-        }
-    }
     drawDebugger() {
         const map = this.layers.map.data;
         const drawer = this.debuggerDrawer;
@@ -406,13 +405,11 @@ class Render {
         if (now - this.lastRenderTime >= this.FPSLimiter) {
             this.transitVars();
 
-            this.drawMap();
+            this.drawMapAndFog();
             this.drawCharasters();
             this.drawEffects();
-            this.drawFogOfWar();
             // this.drawDebugger();
             this.lastRenderTime = now;
         }
-
     }
 }
