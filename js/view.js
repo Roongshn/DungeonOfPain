@@ -51,6 +51,19 @@ class Drawer {
         ];
         this.ctx.drawImage(...params);
     }
+    fill(color, point) {
+        this.ctx.fillStyle = color;
+        let params = [0, 0, this.canvas.width, this.canvas.height];
+        if (point) {
+            params = [
+                Math.round(point.x * TILESIZE),
+                Math.round(point.y * TILESIZE),
+                TILESIZE,
+                TILESIZE,
+            ];
+        }
+        this.ctx.fillRect(...params);
+    }
     drawText(text, strNumber, point, config) {
         const params = [
             text,
@@ -89,19 +102,6 @@ class Drawer {
             TILESIZE * health / (maxHealth / 100) / 100,
             TILESIZE / 8,
         ];
-        this.ctx.fillRect(...params);
-    }
-    fill(color, point) {
-        this.ctx.fillStyle = color;
-        let params = [0, 0, this.canvas.width, this.canvas.height];
-        if (point) {
-            params = [
-                Math.round(point.x * TILESIZE),
-                Math.round(point.y * TILESIZE),
-                TILESIZE,
-                TILESIZE,
-            ];
-        }
         this.ctx.fillRect(...params);
     }
     clear(point) {
@@ -254,73 +254,49 @@ class Render {
                     x: i + this.viewport.x,
                     y: j + this.viewport.y,
                 };
+
+                const correctedPoint = {
+                    x: i + this.getViewportCorrection('x'),
+                    y: j + this.getViewportCorrection('y'),
+                };
+
                 const cell = mapData[realPoint.x][realPoint.y];
 
                 // рисуем карту
 
                 switch (cell.type) {
                 case 'WL':
-                    mapDrawer.drawTile((cell.tile) ? 'wallWithGreen' : 'wall', {
-                        x: i + this.getViewportCorrection('x'),
-                        y: j + this.getViewportCorrection('y'),
-                    });
+                    mapDrawer.drawTile((cell.tile) ? 'wallWithGreen' : 'wall', correctedPoint);
                     break;
                 case 'F':
-                    mapDrawer.drawTile('floor', {
-                        x: i + this.getViewportCorrection('x'),
-                        y: j + this.getViewportCorrection('y'),
-                    });
+                    mapDrawer.drawTile('floor', correctedPoint);
                     break;
                 case 'L':
-                    mapDrawer.drawTile('wall', {
-                        x: i + this.getViewportCorrection('x'),
-                        y: j + this.getViewportCorrection('y'),
-                    });
-                    mapDrawer.drawTile('lamp' + this.currentAnimationState, {
-                        x: i + this.getViewportCorrection('x'),
-                        y: j + this.getViewportCorrection('y'),
-                    });
+                    mapDrawer.drawTile('wall', correctedPoint);
+                    mapDrawer.drawTile('lamp' + this.currentAnimationState, correctedPoint);
                     break;
                 case 'D':
-                    mapDrawer.drawTile('wall', {
-                        x: i + this.getViewportCorrection('x'),
-                        y: j + this.getViewportCorrection('y'),
-                    });
-                    mapDrawer.drawTile('door', {
-                        x: i + this.getViewportCorrection('x'),
-                        y: j + this.getViewportCorrection('y'),
-                    });
+                    mapDrawer.drawTile('wall', correctedPoint);
+                    mapDrawer.drawTile('door', correctedPoint);
                     break;
                 }
 
                 // рисуем туман войны
 
                 if (cell.explored) {
-                    fogDrawer.clear({
-                        x: i + this.getViewportCorrection('x'),
-                        y: j + this.getViewportCorrection('y'),
-                    });
+                    fogDrawer.clear(correctedPoint);
 
                     const distantion = getDist(playerPosition, realPoint);
                     if (distantion < playerVisionRange && map.isVisible(realPoint, playerPosition)) {
                         if (distantion <= playerVisionRange && distantion >= playerVisionRange - 1) {
-                            fogDrawer.fill('rgba(0, 0, 0, 0.3)', {
-                                x: i + this.getViewportCorrection('x'),
-                                y: j + this.getViewportCorrection('y'),
-                            });
+                            fogDrawer.fill('rgba(0, 0, 0, 0.3)', correctedPoint);
                         }
                         if (distantion < playerVisionRange - 1 && distantion >= playerVisionRange - 2) {
-                            fogDrawer.fill('rgba(0, 0, 0, 0.2)', {
-                                x: i + this.getViewportCorrection('x'),
-                                y: j + this.getViewportCorrection('y'),
-                            });
+                            fogDrawer.fill('rgba(0, 0, 0, 0.2)', correctedPoint);
                         }
                     }
                     else {
-                        fogDrawer.fill('rgba(0, 0, 0, 0.6)', {
-                            x: i + this.getViewportCorrection('x'),
-                            y: j + this.getViewportCorrection('y'),
-                        });
+                        fogDrawer.fill('rgba(0, 0, 0, 0.6)', correctedPoint);
                     }
                 }
             }
