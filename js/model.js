@@ -230,3 +230,24 @@ class Level {
         };
     }
 }
+
+class Inventory {
+    // нужна библиотека предметов
+    constructor(rows, cols) {
+
+    }
+}
+
+class Item {
+    // фабрика, которая порождает объекты
+    constructor() {
+
+    }
+}
+
+class ItemFactory {
+    // TODO: почитать про паттерн фабрика
+    constructor() {
+
+    }
+}

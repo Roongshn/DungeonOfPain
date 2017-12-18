@@ -234,6 +234,15 @@ class Render {
     getViewportCorrection(axis) {
         return this.viewport[axis] - this.trasitionVars.viewport[axis];
     }
+    getPlayerMovingDelta() {
+        if (this.layers.player.data.position.x !== this.viewport.playerPosition.x) {
+            return Math.abs(this.layers.player.data.position.x - this.viewport.playerPosition.x);
+        }
+        if (this.layers.player.data.position.y !== this.viewport.playerPosition.y) {
+            return Math.abs(this.layers.player.data.position.y - this.viewport.playerPosition.y);
+        }
+        return 0;
+    }
     drawMapAndFog() {
         const mapDrawer = this.mapDrawer;
         const fogDrawer = this.fogDrawer;
@@ -283,6 +292,7 @@ class Render {
 
                 // рисуем туман войны
 
+                // фактически 2 тумана ?
                 if (cell.explored) {
                     fogDrawer.clear(correctedPoint);
 
