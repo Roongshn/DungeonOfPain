@@ -240,13 +240,23 @@ class Inventory {
 
 class Item {
     // фабрика, которая порождает объекты
-    constructor() {
+    constructor(type, { params }) {
+        switch (type) {
+        case 'weapon':
 
+            break;
+        case 'potion':
+
+            break;
+
+        }
+    }
+    initItem(data) {
+        this.data = data;
     }
 }
 
-class ItemFactory {
-    // TODO: почитать про паттерн фабрика
+class Container {
     constructor() {
 
     }
