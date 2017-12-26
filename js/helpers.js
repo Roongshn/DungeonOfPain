@@ -59,3 +59,7 @@ function fixMathError(value) {
     const accuracy = 1;
     return Number(value.toFixed(accuracy));
 }
+
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max + 1 - min)) + min;
+}

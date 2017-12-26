@@ -5,8 +5,10 @@ class Item {
         case 'weapon':
             this.data = {
                 name: 'Short sword',
+                type: 'weapon',
                 sprite: 'short-sword',
-                damage: 2,
+                minDamage: 1,
+                maxDamage: 3,
                 equipable: true,
                 equipSlot: 'rhand', // херня, сделать систему слотов
                 durable: 100,
@@ -36,6 +38,12 @@ class Inventory {
         this.backpack.push(new Item('potion'));
 
         this.backpack[0].data.equipped = true; // сделать методом
+    }
+    getWeaponDamage() {
+        const weapon = this.backpack.find((item)=>{
+            return item.data.equipped && item.data.type === 'weapon';
+        });
+        return [weapon.data.minDamage, weapon.data.maxDamage];
     }
 }
 
@@ -135,9 +143,12 @@ class Charaster {
         this.id = id;
         this.map = map;
         this.stats = {
+            strength: 1,
+            agility: 1,
             speed: data.speed,
-            visionRange: data.vision_range,
             health: data.max_hp,
+
+            visionRange: data.vision_range,
         };
         this._health = data.max_hp;
         this.position = data.position;

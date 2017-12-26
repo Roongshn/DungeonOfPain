@@ -21,6 +21,24 @@ const BASE_DURATION = 100;
 
 */
 
+/*
+Боевая система:
+
+    Статы:
+        Сила
+        Ловкость
+        Интеллект
+        Скорость
+        Удача
+
+        Здоровье
+        Мана
+
+    Урон в ближнем бою:
+        (Урон оружия = рандом(урон))  * сила
+
+ */
+
 /* TODO: В перспективе НУЖНО добавить флаги обновления конкретных слоёв, чтобы не пререрисовывать постоянно
 
 Вообще надо исследовать рендер на предмет избыточности
@@ -117,8 +135,15 @@ class GameEngine {
         };
 
         if (map[nextPosition.x][nextPosition.y].charaster !== undefined) {
+            const playerDamage = player.inventory.getWeaponDamage();
+            const charasterArmor = 1;
+
+            const damage = (getRandomInt(...playerDamage) * player.stats.strength) - charasterArmor;
+
+            console.log(damage);
             // боёвка
-            monsters[map[nextPosition.x][nextPosition.y].charaster].health -= 1;
+            monsters[map[nextPosition.x][nextPosition.y].charaster].health -= (damage > 0 ? damage : 0);
+
         }
 
         const moveResult = player.move(nextPosition);
