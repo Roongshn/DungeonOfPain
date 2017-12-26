@@ -1,3 +1,44 @@
+class Item {
+    // фабрика, которая порождает объекты
+    constructor(type /* , { params }*/) {
+        switch (type) {
+        case 'weapon':
+            this.data = {
+                name: 'Short sword',
+                sprite: 'short-sword',
+                damage: 2,
+                equipable: true,
+                equipSlot: 'rhand', // херня, сделать систему слотов
+                durable: 100,
+                equipped: false,
+            };
+            break;
+        case 'potion':
+            this.data = {
+                name: 'Health potion',
+                value: 10,
+                sprite: 'red-potion',
+                equipable: false,
+            };
+            break;
+
+        }
+    }
+}
+
+class Inventory {
+    // нужна библиотека предметов
+    constructor(size) {
+        this.backpack = [];
+
+        this.backpack.push(new Item('weapon'));
+        this.backpack.push(new Item('potion'));
+        this.backpack.push(new Item('potion'));
+
+        this.backpack[0].data.equipped = true; // сделать методом
+    }
+}
+
 class Map {
     constructor(data) {
         this.data = data;
@@ -102,6 +143,8 @@ class Charaster {
         this.position = data.position;
         this.duration = 0;
         this.status = 'alive';
+
+        this.inventory = new Inventory(10);
     }
     get health() {
         return this._health;
@@ -217,42 +260,12 @@ class Level {
                 isVisible: this.map.isVisible,
             },
             player: {
-                data: {
-                    health: this.player.health,
-                    position: this.player.position,
-                    stats: this.player.stats,
-                    // status: this.player.status,
-                },
+                data: this.player,
             },
             monsters: {
                 data: this.monsters.data,
             },
         };
-    }
-}
-
-class Inventory {
-    // нужна библиотека предметов
-    constructor(rows, cols) {
-
-    }
-}
-
-class Item {
-    // фабрика, которая порождает объекты
-    constructor(type, { params }) {
-        switch (type) {
-        case 'weapon':
-
-            break;
-        case 'potion':
-
-            break;
-
-        }
-    }
-    initItem(data) {
-        this.data = data;
     }
 }
 

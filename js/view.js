@@ -322,15 +322,19 @@ class Render {
 
         const monsters = this.layers.monsters.data;
 
+        // console.log(player);
+
         charastersDrawer.clear();
         infoDrawer.clear();
         floorDrawer.clear();
 
+        // player
         charastersDrawer.drawTile('knight' + this.currentAnimationState, {
             x: playerPositions.x - this.trasitionVars.viewport.x,
             y: playerPositions.y - this.trasitionVars.viewport.y,
         });
 
+        // monsters
         for (const i in monstersPositions) {
             const monsterPos = monstersPositions[i];
             const monsterInfo = monsters[i];
@@ -340,16 +344,37 @@ class Render {
                 y: monsterPos.y - this.trasitionVars.viewport.y,
             };
 
+            // alive
             if (monsterInfo.health > 0) {
                 charastersDrawer.drawTile('goblin' + this.currentAnimationState, point);
                 if (monsterInfo.health < monsterInfo.stats.health) {
                     infoDrawer.drawHealthBar(point, monsterInfo.health, monsterInfo.stats.health);
                 }
-            }
+            } // dead
             else {
                 floorDrawer.drawTile('skull', point);
             }
         }
+    }
+    drawPlayerInventory() {
+        const player = this.layers.player.data;
+
+        // player interface
+        player.inventory.backpack.forEach((item, index) => {
+            const inventoryCell = $(`.b-inventory__cell:eq(${index}) span`);
+            if (inventoryCell.attr('class') !== `i-${item.data.sprite}`) {
+                inventoryCell.attr('class', `i-${item.data.sprite}`);
+                console.log(item.data);
+                if (item.data.equipped) {
+                    inventoryCell.parent().addClass('equipped');
+
+                    $(`.b-equip__cell--${item.data.equipSlot} span`).attr('class', `i-${item.data.sprite}`);
+                }
+                else {
+                    inventoryCell.parent().removeClass('equipped');
+                }
+            }
+        });
     }
     drawEffects() {
         // TODO: нехорошо полагаться на очисту слоя в предыдущем методе, надо или это туда перенести, или что-то придумать с очисткой

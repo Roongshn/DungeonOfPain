@@ -18,6 +18,55 @@
             <div class="b-player__health b-player__bar">
                 <div class="b-player__bar-progress"></div>
             </div>
+            <div class="b-player__equip b-equip">
+                <div class="b-equip__cell b-equip__cell--head">
+                    <span></span>
+                </div>
+                <div class="b-equip__cell b-equip__cell--body">
+                    <span></span>
+                </div>
+                <div class="b-equip__cell b-equip__cell--legs">
+                    <span></span>
+                </div>
+                <div class="b-equip__cell b-equip__cell--lhand">
+                    <span></span>
+                </div>
+                <div class="b-equip__cell b-equip__cell--rhand">
+                    <span></span>
+                </div>
+            </div>
+            <div class="b-player__inventory b-inventory">
+                <div class="b-inventory__cell">
+                    <span></span>
+                </div>
+                <div class="b-inventory__cell ">
+                    <span></span>
+                </div>
+                <div class="b-inventory__cell">
+                    <span></span>
+                </div>
+                <div class="b-inventory__cell">
+                    <span></span>
+                </div>
+                <div class="b-inventory__cell">
+                    <span></span>
+                </div>
+                <div class="b-inventory__cell">
+                    <span></span>
+                </div>
+                <div class="b-inventory__cell ">
+                    <span></span>
+                </div>
+                <div class="b-inventory__cell">
+                    <span></span>
+                </div>
+                <div class="b-inventory__cell">
+                    <span></span>
+                </div>
+                <div class="b-inventory__cell">
+                    <span></span>
+                </div>
+            </div>
         </div>
         <div class="game">
             <canvas id='map'>Your browser suck</canvas>

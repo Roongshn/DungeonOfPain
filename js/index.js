@@ -44,6 +44,8 @@ class GameEngine {
         }
         renderCycle();
 
+        that.render.drawPlayerInventory();
+
         addEventListener('keydown', (e) => {
             if (this.render.animationInProgress) {return;}
             // прокрутка карты
