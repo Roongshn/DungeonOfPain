@@ -1,5 +1,5 @@
 const VIEWPORT_MOVE_DIST = 7;
-const BASE_DURATION = 100;
+
 /*
 Игровая механика:
 
@@ -35,7 +35,10 @@ const BASE_DURATION = 100;
         Мана
 
     Урон в ближнем бою:
-        (Урон оружия = рандом(урон))  * сила
+        (Урон оружия = рандом(минУронб максУрон))  * сила
+
+    Урон в дальнем бою:
+        (Урон оружия = рандом(минУронб максУрон))  * ловкость
 
  */
 
@@ -102,7 +105,7 @@ class GameEngine {
                     playerShift = [1, 0];
                     break;
                 }
-                this.movePlayer(playerShift);
+                this.actionHandler(playerShift);
             }
         });
     }
@@ -123,7 +126,7 @@ class GameEngine {
             }
         }
     }
-    movePlayer(shift) {
+    actionHandler(shift) {
         const player = this.level.player;
         const map = this.level.map.data;
         const monsters = this.level.monsters.data;
@@ -134,43 +137,49 @@ class GameEngine {
             y: player.position.y + shift[1],
         };
 
-        if (map[nextPosition.x][nextPosition.y].charaster !== undefined) {
-            const playerDamage = player.inventory.getWeaponDamage();
+        const charasterId = map[nextPosition.x][nextPosition.y].charaster;
+        const charaster = monsters[charasterId];
+
+        if (charasterId !== undefined && charaster.status !== 'dead') {
+            // боёвка
+            const playerDamage = player.attack();
             const charasterArmor = 1;
 
-            const damage = (getRandomInt(...playerDamage) * player.stats.strength) - charasterArmor;
+            let damage = playerDamage - charasterArmor;
+            damage = (damage > 0 ? damage : 0);
 
-            console.log(damage);
-            // боёвка
-            monsters[map[nextPosition.x][nextPosition.y].charaster].health -= (damage > 0 ? damage : 0);
+            monsters[charasterId].health -= damage;
 
+            this.render.addEmergingNumber(charasterId, -damage, 'health');
+        }
+        else {
+            const moveResult = player.move(nextPosition);
+
+            if (moveResult !== false) {
+                let viewportShift;
+
+                if (nextPosition.x - VIEWPORT_MOVE_DIST < viewport.x) {
+                    viewportShift = [-1, 0];
+                }
+                if (nextPosition.x + VIEWPORT_MOVE_DIST > viewport.x + viewport.w) {
+                    viewportShift = [1, 0];
+                }
+                if (nextPosition.y - VIEWPORT_MOVE_DIST < viewport.y) {
+                    viewportShift = [0, -1];
+                }
+                if (nextPosition.y + VIEWPORT_MOVE_DIST > viewport.y + viewport.h) {
+                    viewportShift = [0, 1];
+                }
+
+                if (viewportShift) {
+                    this.render.moveViewport(...viewportShift);
+                }
+
+                // разведка карты
+                this.exploreMap(nextPosition);
+            }
         }
 
-        const moveResult = player.move(nextPosition);
-
-        if (moveResult !== false) {
-            let viewportShift;
-
-            if (nextPosition.x - VIEWPORT_MOVE_DIST < viewport.x) {
-                viewportShift = [-1, 0];
-            }
-            if (nextPosition.x + VIEWPORT_MOVE_DIST > viewport.x + viewport.w) {
-                viewportShift = [1, 0];
-            }
-            if (nextPosition.y - VIEWPORT_MOVE_DIST < viewport.y) {
-                viewportShift = [0, -1];
-            }
-            if (nextPosition.y + VIEWPORT_MOVE_DIST > viewport.y + viewport.h) {
-                viewportShift = [0, 1];
-            }
-
-            if (viewportShift) {
-                this.render.moveViewport(...viewportShift);
-            }
-
-            // разведка карты
-            this.exploreMap(nextPosition);
-        }
         this.doMainCicle();
     }
     doMainCicle() {

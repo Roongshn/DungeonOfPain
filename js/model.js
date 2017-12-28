@@ -39,11 +39,11 @@ class Inventory {
 
         this.backpack[0].data.equipped = true; // сделать методом
     }
-    getWeaponDamage() {
+    getWeapon() {
         const weapon = this.backpack.find((item)=>{
             return item.data.equipped && item.data.type === 'weapon';
         });
-        return [weapon.data.minDamage, weapon.data.maxDamage];
+        return weapon;
     }
 }
 
@@ -165,6 +165,12 @@ class Charaster {
         if (this._health === 0) {
             this.status = 'dead';
         }
+    }
+    attack() {
+        this.duration += getActionDuration('attack', this.stats.speed);
+        const weapon = this.inventory.getWeapon();
+        console.log(weapon);
+        return getRandomInt(weapon.data.minDamage, weapon.data.maxDamage) * this.stats.strength;
     }
     move(point) {
         this.duration += getActionDuration('move', this.stats.speed);

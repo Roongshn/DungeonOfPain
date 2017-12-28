@@ -207,6 +207,7 @@ class Render {
                 this.trasitionVars.monsters[index].y = getNextValue(monsters[index].position.y, this.trasitionVars.monsters[index].y);
                 animationInProgress = true;
             }
+            /*
             if (this.trasitionVars.monsters[index].health !== monsters[index].health) {
                 this.emergingNumbers.push({
                     value: monsters[index].health - this.trasitionVars.monsters[index].health,
@@ -220,8 +221,20 @@ class Render {
                 this.trasitionVars.monsters[index].health = monsters[index].health;
                 animationInProgress = true;
             }
+            */
         }
         this.animationInProgress = animationInProgress;
+    }
+    addEmergingNumber(charasterId, value, type) {
+        this.emergingNumbers.push({
+            value: value,
+            opacity: 1,
+            type: type,
+            position: {
+                x: this.trasitionVars.monsters[charasterId].x,
+                y: this.trasitionVars.monsters[charasterId].y,
+            },
+        });
     }
     moveViewport(x, y) {
         if ((this.viewport.x + x) >= 0 && (this.viewport.x + x + this.viewport.w) <= this.layers.map.data.length) {
