@@ -335,8 +335,6 @@ class Render {
 
         const monsters = this.layers.monsters.data;
 
-        // console.log(player);
-
         charastersDrawer.clear();
         infoDrawer.clear();
         floorDrawer.clear();
@@ -377,10 +375,8 @@ class Render {
             const inventoryCell = $(`.b-inventory__cell:eq(${index}) span`);
             if (inventoryCell.attr('class') !== `i-${item.data.sprite}`) {
                 inventoryCell.attr('class', `i-${item.data.sprite}`);
-                console.log(item.data);
                 if (item.data.equipped) {
                     inventoryCell.parent().addClass('equipped');
-
                     $(`.b-equip__cell--${item.data.equipSlot} span`).attr('class', `i-${item.data.sprite}`);
                 }
                 else {

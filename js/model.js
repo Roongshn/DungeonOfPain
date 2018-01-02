@@ -142,6 +142,7 @@ class Charaster {
     constructor(id, data, map) {
         this.id = id;
         this.map = map;
+
         this.stats = {
             strength: 1,
             agility: 1,
@@ -169,7 +170,6 @@ class Charaster {
     attack() {
         this.duration += getActionDuration('attack', this.stats.speed);
         const weapon = this.inventory.getWeapon();
-        console.log(weapon);
         return getRandomInt(weapon.data.minDamage, weapon.data.maxDamage) * this.stats.strength;
     }
     move(point) {
@@ -236,9 +236,20 @@ class Monster extends Charaster {
             }
             if (this.status === 'awaken') {
                 if (canSeePlayer) { // если видит игрока - идёт к нему
-                    this.move(this.map.getNearest(this.position, player.position));
+                    if (Math.round(getDist(this.position, player.position)) === 1) {
+                        const playerArmor = 1;
+
+                        let damage = this.attack(); - playerArmor;
+                        damage = (damage > 0 ? damage : 0);
+
+                        player.health -= damage;
+                    }
+                    else {
+                        this.move(this.map.getNearest(this.position, player.position));
+                    }
                 }
-                else if (this.position.x !== this.memory.player.x || this.position.y !== this.memory.player.y) { // если не видит, но ещё не пришёл туда, где видел последний раз - идёт туда
+                // если не видит, но ещё не пришёл туда, где видел последний раз - идёт туда
+                else if (this.position.x !== this.memory.player.x || this.position.y !== this.memory.player.y) {
                     this.move(this.map.getNearest(this.position, this.memory.player));
                 }
                 else { // если пришел, но всё ещё не видит - засыпает

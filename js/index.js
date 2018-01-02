@@ -54,7 +54,6 @@ class GameEngine {
     constructor(data, tileset) {
         const that = this;
 
-        this.level = new Level(data);
         this.render = new Render(this.level.getData(), tileset);
 
         this.exploreMap(this.level.player.position);
@@ -109,6 +108,9 @@ class GameEngine {
             }
         });
     }
+    actionResolver(type, person, opponent) {
+
+    }
     exploreMap(playerPosition) {
         const map = this.level.map;
         const playerVisionRange = this.level.player.stats.visionRange + 1;
@@ -142,10 +144,8 @@ class GameEngine {
 
         if (charasterId !== undefined && charaster.status !== 'dead') {
             // боёвка
-            const playerDamage = player.attack();
             const charasterArmor = 1;
-
-            let damage = playerDamage - charasterArmor;
+            let damage = player.attack() - charasterArmor;
             damage = (damage > 0 ? damage : 0);
 
             monsters[charasterId].health -= damage;
