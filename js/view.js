@@ -225,14 +225,13 @@ class Render {
         }
         this.animationInProgress = animationInProgress;
     }
-    addEmergingNumber(charasterId, value, type) {
+    addEmergingNumber(position, value, type) {
         this.emergingNumbers.push({
             value: value,
             opacity: 1,
             type: type,
             position: {
-                x: this.trasitionVars.monsters[charasterId].x,
-                y: this.trasitionVars.monsters[charasterId].y,
+                ...position,
             },
         });
     }

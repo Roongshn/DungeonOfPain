@@ -54,7 +54,25 @@ class GameEngine {
     constructor(data, tileset) {
         const that = this;
 
+        this.level = new Level(data);
         this.render = new Render(this.level.getData(), tileset);
+
+        this.actions = {
+            melee(person, opponent) {
+                console.log('melee', person, opponent);
+                const opponentArmor = 1;
+                let damage = person.attack() - opponentArmor;
+                damage = (damage > 0 ? damage : 0);
+
+                opponent.health -= damage;
+
+                // console.log(opponent.position);
+
+                that.render.addEmergingNumber(opponent.position, -damage, 'health');
+
+                return !!damage;
+            },
+        };
 
         this.exploreMap(this.level.player.position);
 
@@ -108,9 +126,6 @@ class GameEngine {
             }
         });
     }
-    actionResolver(type, person, opponent) {
-
-    }
     exploreMap(playerPosition) {
         const map = this.level.map;
         const playerVisionRange = this.level.player.stats.visionRange + 1;
@@ -139,18 +154,10 @@ class GameEngine {
             y: player.position.y + shift[1],
         };
 
-        const charasterId = map[nextPosition.x][nextPosition.y].charaster;
-        const charaster = monsters[charasterId];
+        const monster = monsters[map[nextPosition.x][nextPosition.y].charaster];
 
-        if (charasterId !== undefined && charaster.status !== 'dead') {
-            // боёвка
-            const charasterArmor = 1;
-            let damage = player.attack() - charasterArmor;
-            damage = (damage > 0 ? damage : 0);
-
-            monsters[charasterId].health -= damage;
-
-            this.render.addEmergingNumber(charasterId, -damage, 'health');
+        if (monster && monster.status !== 'dead') {
+            this.actions.melee(player, monster);
         }
         else {
             const moveResult = player.move(nextPosition);
@@ -188,7 +195,7 @@ class GameEngine {
         const map = this.level.map;
 
         monsters.data.forEach((monster) => {
-            monster.decide(player, map);
+            monster.decide(player, this.actions);
         });
     }
 }
