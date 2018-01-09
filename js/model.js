@@ -169,6 +169,7 @@ class Charaster {
     }
     attack() {
         this.duration += getActionDuration('attack', this.stats.speed);
+        console.log(this, this.duration);
         const weapon = this.inventory.getWeapon();
         return getRandomInt(weapon.data.minDamage, weapon.data.maxDamage) * this.stats.strength;
     }
@@ -216,11 +217,12 @@ class Monster extends Charaster {
     forget(key) {
         this.memory[key] = undefined;
     }
-    decide(player) { // принимает персонажа таким, какой он есть. со всеми достоинствами и недостатками.
+    decide(player, actions) { // принимает персонажа таким, какой он есть. со всеми достоинствами и недостатками.
         if (this.health === 0) {
             return;
         }
         while (this.duration < player.duration) {
+            console.log(this.duration, player.duration);
             const canSeePlayer = this.map.isVisible(player.position, this.position);
             // каждый раз, когда моб видит игрока - он запечатляется в его памяти
             if (canSeePlayer) {
@@ -237,12 +239,7 @@ class Monster extends Charaster {
             if (this.status === 'awaken') {
                 if (canSeePlayer) { // если видит игрока - идёт к нему
                     if (Math.round(getDist(this.position, player.position)) === 1) {
-                        const playerArmor = 1;
-
-                        let damage = this.attack(); - playerArmor;
-                        damage = (damage > 0 ? damage : 0);
-
-                        player.health -= damage;
+                        actions.melee(this, player);
                     }
                     else {
                         this.move(this.map.getNearest(this.position, player.position));
