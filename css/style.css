@@ -1,7 +1,8 @@
-@import url(http://fonts.googleapis.com/css?family=Press+Start+2P&subset=latin,cyrillic);
+@import url("http://fonts.googleapis.com/css?family=Press+Start+2P&subset=latin,cyrillic");
+
 :root {
-    --bronse-color: #9f9571;
-    --black: #000;
+    --bronse-color: #9F9571;
+    --black: #000000;
     --border-width: 4px;
 }
 
@@ -10,8 +11,8 @@
 }
 
 body {
-    font-family: 'Press Start 2P', sans-serif;
     margin: 0;
+    font-family: "Press Start 2P", sans-serif;
 }
 
 canvas {
@@ -24,32 +25,32 @@ canvas {
 
 .b-player {
     position: absolute;
+    z-index: 100;
     top: 16px;
     right: 16px;
     bottom: 16px;
     left: 16px;
-    z-index: 100;
     pointer-events: none;
 }
 
 .b-player__avatar {
+    z-index: 1;
     position: absolute;
     width: 96px;
     height: 96px;
     border: var(--border-width) solid var(--bronse-color);
     background-color: var(--black);
-    z-index: 1;
 }
 
 .b-player__bar {
-    height: 24px;
-    width: 256px;
-    border: var(--border-width) solid var(--bronse-color);
-    border-right: calc(2 * var(--border-width)) solid var(--bronse-color);
     position: absolute;
     top: 0;
     left: 82px;
+    width: 256px;
+    height: 24px;
     transform: skewX(-45deg);
+    border: var(--border-width) solid var(--bronse-color);
+    border-right: calc(2 * var(--border-width)) solid var(--bronse-color);
 }
 
 .b-player__bar-progress {
@@ -61,52 +62,53 @@ canvas {
     background-color: #ED1C24;
 }
 
-.b-player__health {}
+.b-player__health {
+}
 
 .b-player__inventory {
     position: absolute;
-    left: 0;
     bottom: 0;
+    left: 0;
 }
 
 .b-inventory {
-    border: var(--border-width) solid var(--bronse-color);
     max-width: 408px;
+    border: var(--border-width) solid var(--bronse-color);
 }
 
 .b-inventory__cell {
+    position: relative;
     width: 64px;
     height: 64px;
-    border: var(--border-width) solid var(--bronse-color);
     margin: 8px;
     float: left;
-    position: relative;
     overflow: hidden;
+    border: var(--border-width) solid var(--bronse-color);
 }
 
 .b-inventory__cell.equipped::before {
-    content: "";
     display: block;
-    background: var(--bronse-color);
-    width: 16px;
-    height: 16px;
     position: absolute;
     top: -8px;
     right: -8px;
+    width: 16px;
+    height: 16px;
     transform: rotate(45deg);
+    background: var(--bronse-color);
+    content: "";
 }
 
 .b-inventory__cell span,
 .b-equip__cell span {
     display: block;
     position: absolute;
-    margin: auto;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
     width: 0;
     height: 0;
+    margin: auto;
     background-image: url("../tiles/full_tileset_b.png");
 }
 
@@ -128,29 +130,29 @@ span.i-red-potion {
 }
 
 .b-equip {
-    border: var(--border-width) solid var(--bronse-color);
     width: 232px;
     height: 232px;
+    border: var(--border-width) solid var(--bronse-color);
 }
 
 .b-equip__cell {
-    border: var(--border-width) solid var(--bronse-color);
     position: absolute;
     width: 64px;
     height: 64px;
+    border: var(--border-width) solid var(--bronse-color);
 }
 
 .b-equip__cell--head {
     top: 8px;
-    left: 0;
     right: 0;
+    left: 0;
     margin: auto;
 }
 
 .b-equip__cell--body {
     top: 80px;
-    left: 0;
     right: 0;
+    left: 0;
     margin: auto;
 }
 
@@ -166,7 +168,7 @@ span.i-red-potion {
 
 .b-equip__cell--legs {
     top: 152px;
-    left: 0;
     right: 0;
+    left: 0;
     margin: auto;
 }
