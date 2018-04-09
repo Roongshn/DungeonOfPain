@@ -66,8 +66,6 @@ class GameEngine {
 
                 opponent.health -= damage;
 
-                // console.log(opponent.position);
-
                 that.render.addEmergingNumber(opponent.position, -damage, 'health');
 
                 return !!damage;

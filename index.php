@@ -5,7 +5,6 @@
         <title>Dungeon of Pain 0.2.5</title>
         <link rel="shortcut icon" href="favicon.ico">
         <link rel="stylesheet" href="./css/style.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
         <script type="text/javascript" src="./js/helpers.js"></script>
         <script type="text/javascript" src="./js/model.js"></script>
         <script type="text/javascript" src="./js/view.js"></script>

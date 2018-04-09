@@ -130,11 +130,16 @@ class Render {
 
         this.layers = data;
 
-        const h = Math.floor($('#map').height() / TILESIZE);
-        const w = Math.floor($('#map').width() / TILESIZE);
+        // const mapCanvas = document.getElementById('map');
+        const canvases = document.getElementsByTagName('canvas');
 
-        $('canvas').attr('height', h * TILESIZE);
-        $('canvas').attr('width', w * TILESIZE);
+        const h = Math.floor(canvases[0].offsetHeight / TILESIZE);
+        const w = Math.floor(canvases[0].offsetWidth / TILESIZE);
+
+        for (const canvas of canvases) {
+            canvas.setAttribute('height', h * TILESIZE);
+            canvas.setAttribute('width', w * TILESIZE);
+        }
 
         this.lastRenderTime = Date.now();
         this.FPSLimiter = 1000 / 60; // 60 fps
@@ -370,19 +375,19 @@ class Render {
         const player = this.layers.player.data;
 
         // player interface
-        player.inventory.backpack.forEach((item, index) => {
-            const inventoryCell = $(`.b-inventory__cell:eq(${index}) span`);
-            if (inventoryCell.attr('class') !== `i-${item.data.sprite}`) {
-                inventoryCell.attr('class', `i-${item.data.sprite}`);
-                if (item.data.equipped) {
-                    inventoryCell.parent().addClass('equipped');
-                    $(`.b-equip__cell--${item.data.equipSlot} span`).attr('class', `i-${item.data.sprite}`);
-                }
-                else {
-                    inventoryCell.parent().removeClass('equipped');
-                }
-            }
-        });
+        // player.inventory.backpack.forEach((item, index) => {
+        //     const inventoryCell = $(`.b-inventory__cell:eq(${index}) span`);
+        //     if (inventoryCell.attr('class') !== `i-${item.data.sprite}`) {
+        //         inventoryCell.attr('class', `i-${item.data.sprite}`);
+        //         if (item.data.equipped) {
+        //             inventoryCell.parent().addClass('equipped');
+        //             $(`.b-equip__cell--${item.data.equipSlot} span`).attr('class', `i-${item.data.sprite}`);
+        //         }
+        //         else {
+        //             inventoryCell.parent().removeClass('equipped');
+        //         }
+        //     }
+        // });
     }
     drawEffects() {
         // TODO: нехорошо полагаться на очисту слоя в предыдущем методе, надо или это туда перенести, или что-то придумать с очисткой
