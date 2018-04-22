@@ -6,9 +6,10 @@
         <link rel="shortcut icon" href="favicon.ico">
         <link rel="stylesheet" href="./css/style.css">
         <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body>
-        <div class="b-player" style="visibility: hidden;">
+        <div class="b-player" style="display: none;">
             <div class="b-player__avatar"></div>
             <div class="b-player__health b-player__bar">
                 <div class="b-player__bar-progress"></div>
@@ -62,6 +63,12 @@
                     <span></span>
                 </div>
             </div>
+        </div>
+        <div class="b-mobile-ui">
+            <button type="button" name="button" class="b-mobile-ui__btn b-mobile-ui__btn--up" data-direction="up"></button>
+            <button type="button" name="button" class="b-mobile-ui__btn b-mobile-ui__btn--right" data-direction="right"></button>
+            <button type="button" name="button" class="b-mobile-ui__btn b-mobile-ui__btn--bottom" data-direction="down"></button>
+            <button type="button" name="button" class="b-mobile-ui__btn b-mobile-ui__btn--left" data-direction="left"></button>
         </div>
         <div class="game">
             <canvas id='map'>Your browser suck</canvas>

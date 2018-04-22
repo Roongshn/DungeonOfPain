@@ -2,8 +2,6 @@ import Render from './components/render/render.js';
 import Level from './components/map/level.js';
 import { requestAnimFrame } from './helpers/helpers.js';
 
-const VIEWPORT_MOVE_DIST = 7;
-
 /*
 Игровая механика:
 
@@ -126,6 +124,26 @@ class GameEngine {
                 this.actionHandler(playerShift);
             }
         });
+
+        addEventListener('click', (e) => {
+            let playerShift;
+            switch (e.target.attributes['data-direction'].value) {
+            case 'up':
+                playerShift = [0, -1];
+                break;
+            case 'left':
+                playerShift = [-1, 0];
+                break;
+            case 'down':
+                playerShift = [0, 1];
+                break;
+            case 'right':
+                playerShift = [1, 0];
+                break;
+            }
+            this.actionHandler(playerShift);
+        });
+
     }
     exploreMap(playerPosition) {
         const map = this.level.map;
@@ -150,6 +168,9 @@ class GameEngine {
         const monsters = this.level.monsters.data;
         const viewport = this.render.viewport;
 
+        const viewportShiftDist = Math.round(Math.min(viewport.h, viewport.w) / 4);
+        console.log(Math.min(viewport.h, viewport.w));
+
         const nextPosition = {
             x: player.position.x + shift[0],
             y: player.position.y + shift[1],
@@ -166,16 +187,16 @@ class GameEngine {
             if (moveResult !== false) {
                 let viewportShift;
 
-                if (nextPosition.x - VIEWPORT_MOVE_DIST < viewport.x) {
+                if (nextPosition.x - viewportShiftDist < viewport.x) {
                     viewportShift = [-1, 0];
                 }
-                if (nextPosition.x + VIEWPORT_MOVE_DIST > viewport.x + viewport.w) {
+                if (nextPosition.x + viewportShiftDist > viewport.x + viewport.w) {
                     viewportShift = [1, 0];
                 }
-                if (nextPosition.y - VIEWPORT_MOVE_DIST < viewport.y) {
+                if (nextPosition.y - viewportShiftDist < viewport.y) {
                     viewportShift = [0, -1];
                 }
-                if (nextPosition.y + VIEWPORT_MOVE_DIST > viewport.y + viewport.h) {
+                if (nextPosition.y + viewportShiftDist > viewport.y + viewport.h) {
                     viewportShift = [0, 1];
                 }
 
