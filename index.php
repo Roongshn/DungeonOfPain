@@ -72,10 +72,6 @@
             <canvas id='debugger'>Your browser suck</canvas>
         </div>
 
-
-        <!--script type="module" src="./js/components/map/level.js"></script>
-        <script type="module" src="./js/components/render/drawer.js"></script>
-        <script type="module" src="./js/components/render/render.js"></script-->
         <script type="module" src="./js/index.js"></script>
     </body>
 </html>
