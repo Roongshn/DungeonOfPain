@@ -1,6 +1,10 @@
 import Render from './components/render/render.js';
 import Level from './components/map/level.js';
-import { requestAnimFrame } from './helpers/helpers.js';
+import {
+    requestAnimFrame,
+    viewportKeysResolver,
+    playerKeysResolver,
+} from './helpers/helpers.js';
 
 /*
 Игровая механика:
@@ -81,67 +85,34 @@ class GameEngine {
         }
         renderCycle();
 
-        that.render.drawPlayerInventory();
+        // that.render.drawPlayerInventory();
 
         addEventListener('keydown', (e) => {
-            if (this.render.animationInProgress) {return;}
-            // прокрутка карты
-            if (e.keyCode >= 37 && e.keyCode <= 40) {
-                let params;
-                switch (e.keyCode) {
-                case 38:
-                    params = [0, -1];
-                    break;
-                case 39:
-                    params = [1, 0];
-                    break;
-                case 40:
-                    params = [0, 1];
-                    break;
-                case 37:
-                    params = [-1, 0];
-                    break;
-                }
-                this.render.moveViewport(...params);
+            if (this.render.animationInProgress) {
+                return;
             }
-
-            if (e.keyCode === 87 || e.keyCode === 65 || e.keyCode === 83 || e.keyCode === 68) {
-                let playerShift;
-                switch (e.keyCode) {
-                case 87:
-                    playerShift = [0, -1];
-                    break;
-                case 65:
-                    playerShift = [-1, 0];
-                    break;
-                case 83:
-                    playerShift = [0, 1];
-                    break;
-                case 68:
-                    playerShift = [1, 0];
-                    break;
-                }
+            // прокрутка карты
+            const viewportShift = viewportKeysResolver(e.keyCode);
+            if (viewportShift) {
+                this.render.moveViewport(...viewportShift);
+            }
+            // управление игроком
+            const playerShift = playerKeysResolver(e.keyCode);
+            if (playerShift) {
                 this.actionHandler(playerShift);
             }
         });
 
         addEventListener('click', (e) => {
-            let playerShift;
-            switch (e.target.attributes['data-direction'].value) {
-            case 'up':
-                playerShift = [0, -1];
-                break;
-            case 'left':
-                playerShift = [-1, 0];
-                break;
-            case 'down':
-                playerShift = [0, 1];
-                break;
-            case 'right':
-                playerShift = [1, 0];
-                break;
+            const directionKeyCode = e.target.attributes['data-direction'];
+            if (!directionKeyCode) {
+                return;
             }
-            this.actionHandler(playerShift);
+
+            const playerShift = playerKeysResolver(directionKeyCode.value);
+            if (playerShift) {
+                this.actionHandler(playerShift);
+            }
         });
 
     }
@@ -169,7 +140,6 @@ class GameEngine {
         const viewport = this.render.viewport;
 
         const viewportShiftDist = Math.round(Math.min(viewport.h, viewport.w) / 4);
-        console.log(Math.min(viewport.h, viewport.w));
 
         const nextPosition = {
             x: player.position.x + shift[0],

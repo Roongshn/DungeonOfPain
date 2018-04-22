@@ -65,10 +65,10 @@
             </div>
         </div>
         <div class="b-mobile-ui">
-            <button type="button" name="button" class="b-mobile-ui__btn b-mobile-ui__btn--up" data-direction="up"></button>
-            <button type="button" name="button" class="b-mobile-ui__btn b-mobile-ui__btn--right" data-direction="right"></button>
-            <button type="button" name="button" class="b-mobile-ui__btn b-mobile-ui__btn--bottom" data-direction="down"></button>
-            <button type="button" name="button" class="b-mobile-ui__btn b-mobile-ui__btn--left" data-direction="left"></button>
+            <button type="button" name="button" class="b-mobile-ui__btn b-mobile-ui__btn--up" data-direction="87"></button>
+            <button type="button" name="button" class="b-mobile-ui__btn b-mobile-ui__btn--right" data-direction="68"></button>
+            <button type="button" name="button" class="b-mobile-ui__btn b-mobile-ui__btn--bottom" data-direction="83"></button>
+            <button type="button" name="button" class="b-mobile-ui__btn b-mobile-ui__btn--left" data-direction="65"></button>
         </div>
         <div class="game">
             <canvas id='map'>Your browser suck</canvas>

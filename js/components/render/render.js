@@ -14,17 +14,6 @@ class Render {
 
         this.layers = data;
 
-        // const mapCanvas = document.getElementById('map');
-        const canvases = document.getElementsByTagName('canvas');
-
-        const h = Math.floor(canvases[0].offsetHeight / TILESIZE);
-        const w = Math.floor(canvases[0].offsetWidth / TILESIZE);
-
-        for (const canvas of canvases) {
-            canvas.setAttribute('height', h * TILESIZE);
-            canvas.setAttribute('width', w * TILESIZE);
-        }
-
         this.lastRenderTime = Date.now();
         this.FPSLimiter = 1000 / 60; // 60 fps
 
@@ -33,12 +22,29 @@ class Render {
         this.animationSpeed = 450;
         this.animationInProgress = false;
 
-        this.viewport = {
-            h,
-            w,
-            x: Math.floor(this.layers.player.data.position.y - (w / 2)),
-            y: Math.floor(this.layers.player.data.position.x - (h / 2)),
+        const initCanvasAndViewport = () => {
+            const canvases = document.getElementsByTagName('canvas');
+            const h = Math.floor(canvases[0].offsetHeight / TILESIZE);
+            const w = Math.floor(canvases[0].offsetWidth / TILESIZE);
+
+            for (const canvas of canvases) {
+                canvas.setAttribute('height', h * TILESIZE);
+                canvas.setAttribute('width', w * TILESIZE);
+            }
+
+            this.viewport = {
+                h,
+                w,
+                x: Math.floor(this.layers.player.data.position.y - (w / 2)),
+                y: Math.floor(this.layers.player.data.position.x - (h / 2)),
+            };
         };
+
+        initCanvasAndViewport();
+
+        window.addEventListener('resize', () => {
+            initCanvasAndViewport();
+        });
 
         this.trasitionVars = {
             playerPosition: {
@@ -192,7 +198,6 @@ class Render {
                 }
 
                 // рисуем туман войны
-
                 // фактически 2 тумана ?
                 if (cell.explored) {
                     fogDrawer.clear(correctedPoint);
@@ -322,6 +327,7 @@ class Render {
         }
 
         if (now - this.lastRenderTime >= this.FPSLimiter) {
+            // console.time('Render');
             this.transitVars();
 
             this.drawMapAndFog();
@@ -329,6 +335,7 @@ class Render {
             this.drawEffects();
             // this.drawDebugger();
             this.lastRenderTime = now;
+            // console.timeEnd('Render');
         }
     }
 }

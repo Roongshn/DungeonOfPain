@@ -51,10 +51,7 @@ export const requestAnimFrame = (() => {
     window.webkitRequestAnimationFrame ||
     window.mozRequestAnimationFrame ||
     window.oRequestAnimationFrame ||
-    window.msRequestAnimationFrame ||
-    function(callback) {
-        window.setTimeout(callback, 1000 / 60);
-    };
+    window.msRequestAnimationFrame;
 })();
 
 export function fixMathError(value) {
@@ -64,4 +61,34 @@ export function fixMathError(value) {
 
 export function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max + 1 - min)) + min;
+}
+
+export function viewportKeysResolver(keyCode) {
+    switch (Number(keyCode)) {
+    case 38:
+        return [0, -1];
+    case 39:
+        return [1, 0];
+    case 40:
+        return [0, 1];
+    case 37:
+        return [-1, 0];
+    default:
+        return false;
+    }
+}
+
+export function playerKeysResolver(keyCode) {
+    switch (Number(keyCode)) {
+    case 87:
+        return [0, -1];
+    case 65:
+        return [-1, 0];
+    case 83:
+        return [0, 1];
+    case 68:
+        return [1, 0];
+    default:
+        return false;
+    }
 }
