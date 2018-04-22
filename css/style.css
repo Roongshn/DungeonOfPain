@@ -1,9 +1,7 @@
 @import url(http://fonts.googleapis.com/css?family=Press+Start+2P&subset=latin,cyrillic);
-:root {
-    --bronse-color: #9f9571;
-    --black: #000;
-    --border-width: 4px;
-}
+@import 'variables.css';
+@import 'modals.css';
+@import 'player.css';
 
 * {
     box-sizing: border-box;
@@ -21,47 +19,6 @@ canvas {
     width: 100vw;
     height: 100vh;
 }
-
-.b-player {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    bottom: 16px;
-    left: 16px;
-    z-index: 100;
-    pointer-events: none;
-}
-
-.b-player__avatar {
-    position: absolute;
-    width: 96px;
-    height: 96px;
-    border: var(--border-width) solid var(--bronse-color);
-    background-color: var(--black);
-    z-index: 1;
-}
-
-.b-player__bar {
-    height: 24px;
-    width: 256px;
-    border: var(--border-width) solid var(--bronse-color);
-    border-right: calc(2 * var(--border-width)) solid var(--bronse-color);
-    position: absolute;
-    top: 0;
-    left: 82px;
-    transform: skewX(-45deg);
-}
-
-.b-player__bar-progress {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 55%;
-    height: 100%;
-    background-color: #ED1C24;
-}
-
-.b-player__health {}
 
 .b-player__inventory {
     position: absolute;

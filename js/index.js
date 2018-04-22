@@ -135,6 +135,9 @@ class GameEngine {
     }
     actionHandler(shift) {
         const player = this.level.player;
+
+        if (player.health === 0) {return;}
+
         const map = this.level.map.data;
         const monsters = this.level.monsters.data;
         const viewport = this.render.viewport;

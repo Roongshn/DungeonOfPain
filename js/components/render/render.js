@@ -1,4 +1,5 @@
 import Drawer from './drawer.js';
+import UI from './ui.js';
 import { TILESIZE } from '../../helpers/consts.js';
 import { fixMathError, getDist } from '../../helpers/helpers.js';
 
@@ -10,9 +11,13 @@ class Render {
         this.infoDrawer = new Drawer('info');
         this.fogDrawer = new Drawer('fog', tileset);
 
-        this.debuggerDrawer = new Drawer('debugger');
+        // this.debuggerDrawer = new Drawer('debugger');
 
         this.layers = data;
+
+        this.UI = new UI(this.layers.player);
+
+        console.log(this.layers.player);
 
         this.lastRenderTime = Date.now();
         this.FPSLimiter = 1000 / 60; // 60 fps
@@ -224,36 +229,44 @@ class Render {
         const monstersPositions = this.trasitionVars.monsters;
 
         const monsters = this.layers.monsters.data;
+        const playerHealth = this.layers.player.data.health;
 
         charastersDrawer.clear();
         infoDrawer.clear();
         floorDrawer.clear();
 
         // player
-        charastersDrawer.drawTile('knight' + this.currentAnimationState, {
+        const playerPoint = {
             x: playerPositions.x - this.trasitionVars.viewport.x,
             y: playerPositions.y - this.trasitionVars.viewport.y,
-        });
+        };
+
+        if (playerHealth > 0) {
+            charastersDrawer.drawTile('knight' + this.currentAnimationState, playerPoint);
+        }
+        else {
+            floorDrawer.drawTile('skull', playerPoint);
+        }
 
         // monsters
         for (const i in monstersPositions) {
             const monsterPos = monstersPositions[i];
             const monsterInfo = monsters[i];
 
-            const point = {
+            const monsterPoint = {
                 x: monsterPos.x - this.trasitionVars.viewport.x,
                 y: monsterPos.y - this.trasitionVars.viewport.y,
             };
 
             // alive
             if (monsterInfo.health > 0) {
-                charastersDrawer.drawTile('goblin' + this.currentAnimationState, point);
+                charastersDrawer.drawTile('goblin' + this.currentAnimationState, monsterPoint);
                 if (monsterInfo.health < monsterInfo.stats.health) {
-                    infoDrawer.drawHealthBar(point, monsterInfo.health, monsterInfo.stats.health);
+                    infoDrawer.drawHealthBar(monsterPoint, monsterInfo.health, monsterInfo.stats.health);
                 }
             } // dead
             else {
-                floorDrawer.drawTile('skull', point);
+                floorDrawer.drawTile('skull', monsterPoint);
             }
         }
     }
@@ -330,6 +343,8 @@ class Render {
             this.drawMapAndFog();
             this.drawCharasters();
             this.drawEffects();
+
+            this.UI.update();
             // this.drawDebugger();
             this.lastRenderTime = now;
             // console.timeEnd('Render');

@@ -92,3 +92,7 @@ export function playerKeysResolver(keyCode) {
         return false;
     }
 }
+
+export function getValueInPercents(value, maxValue) {
+    return value / (maxValue / 100);
+}
