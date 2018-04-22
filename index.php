@@ -5,14 +5,10 @@
         <title>Dungeon of Pain 0.2.5</title>
         <link rel="shortcut icon" href="favicon.ico">
         <link rel="stylesheet" href="./css/style.css">
-        <script type="text/javascript" src="./js/helpers.js"></script>
-        <script type="text/javascript" src="./js/model.js"></script>
-        <script type="text/javascript" src="./js/view.js"></script>
-        <script type="text/javascript" src="./js/index.js"></script>
         <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     </head>
     <body>
-        <div class="b-player">
+        <div class="b-player" style="visibility: hidden;">
             <div class="b-player__avatar"></div>
             <div class="b-player__health b-player__bar">
                 <div class="b-player__bar-progress"></div>
@@ -75,5 +71,11 @@
             <canvas id='fog'>Your browser suck</canvas>
             <canvas id='debugger'>Your browser suck</canvas>
         </div>
+
+
+        <!--script type="module" src="./js/components/map/level.js"></script>
+        <script type="module" src="./js/components/render/drawer.js"></script>
+        <script type="module" src="./js/components/render/render.js"></script-->
+        <script type="module" src="./js/index.js"></script>
     </body>
 </html>

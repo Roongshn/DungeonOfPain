@@ -1,10 +1,10 @@
-const BASE_DURATION = 100;
+import { BASE_DURATION } from './consts.js';
 
-function getDist(point1, point2) {
+export function getDist(point1, point2) {
     return Math.sqrt(Math.pow((point2.x - point1.x), 2) + Math.pow((point2.y - point1.y), 2));
 }
 
-function getLine(point1, point2) { // первый параметр - проверяемая точка, второй - позиция наблюдателя
+export function getLine(point1, point2) { // первый параметр - проверяемая точка, второй - позиция наблюдателя
     // brezenheme
     const pointS = {
         x: point1.x,
@@ -15,7 +15,7 @@ function getLine(point1, point2) { // первый параметр - прове
         y: point2.y,
     };
 
-    const result = new Array();
+    const result = [];
 
     const dX = Math.abs(pointF.x - pointS.x);
     const dY = Math.abs(pointF.y - pointS.y);
@@ -41,12 +41,12 @@ function getLine(point1, point2) { // первый параметр - прове
     return result;
 }
 
-function getActionDuration(actionName, abilityValue) {
+export function getActionDuration(actionName, abilityValue) {
     // actionName нужно на случай нестандартных формул рассчета продолжительности
     return BASE_DURATION - abilityValue;
 }
 
-const requestAnimFrame = (() => {
+export const requestAnimFrame = (() => {
     return window.requestAnimationFrame ||
     window.webkitRequestAnimationFrame ||
     window.mozRequestAnimationFrame ||
@@ -57,11 +57,11 @@ const requestAnimFrame = (() => {
     };
 })();
 
-function fixMathError(value) {
+export function fixMathError(value) {
     const accuracy = 1;
     return Number(value.toFixed(accuracy));
 }
 
-function getRandomInt(min, max) {
+export function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max + 1 - min)) + min;
 }

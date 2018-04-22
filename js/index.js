@@ -1,3 +1,7 @@
+import Render from './components/render/render.js';
+import Level from './components/map/level.js';
+import { requestAnimFrame } from './helpers/helpers.js';
+
 const VIEWPORT_MOVE_DIST = 7;
 
 /*
@@ -59,7 +63,6 @@ class GameEngine {
 
         this.actions = {
             melee(person, opponent) {
-                console.log('melee', person, opponent);
                 const opponentArmor = 1;
                 let damage = person.attack() - opponentArmor;
                 damage = (damage > 0 ? damage : 0);
@@ -190,7 +193,7 @@ class GameEngine {
     doMainCicle() {
         const player = this.level.player;
         const monsters = this.level.monsters;
-        const map = this.level.map;
+        // const map = this.level.map;
 
         monsters.data.forEach((monster) => {
             monster.decide(player, this.actions);
