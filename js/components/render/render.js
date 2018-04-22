@@ -35,8 +35,8 @@ class Render {
             this.viewport = {
                 h,
                 w,
-                x: Math.floor(this.layers.player.data.position.y - (w / 2)),
-                y: Math.floor(this.layers.player.data.position.x - (h / 2)),
+                x: Math.floor(this.layers.player.data.position.x - (w / 2)),
+                y: Math.floor(this.layers.player.data.position.y - (h / 2)),
             };
         };
 
