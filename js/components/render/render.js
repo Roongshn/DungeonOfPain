@@ -84,12 +84,23 @@ class Render {
         }
         // viewport
         if (this.trasitionVars.viewport.x !== this.viewport.x) {
-            this.trasitionVars.viewport.x = getNextValue(this.viewport.x, this.trasitionVars.viewport.x);
-            animationInProgress = true;
+            if (Math.abs(this.trasitionVars.viewport.x - this.viewport.x) > 1) {
+                this.trasitionVars.viewport.x = this.viewport.x;
+            }
+            else {
+                this.trasitionVars.viewport.x = getNextValue(this.viewport.x, this.trasitionVars.viewport.x);
+                animationInProgress = true;
+            }
         }
         if (this.trasitionVars.viewport.y !== this.viewport.y) {
-            this.trasitionVars.viewport.y = getNextValue(this.viewport.y, this.trasitionVars.viewport.y);
-            animationInProgress = true;
+            if (Math.abs(this.trasitionVars.viewport.y - this.viewport.y) > 1) {
+                this.trasitionVars.viewport.y = this.viewport.y;
+            }
+            else {
+                this.trasitionVars.viewport.y = getNextValue(this.viewport.y, this.trasitionVars.viewport.y);
+                animationInProgress = true;
+            }
+
         }
         // monsters
         const monsters = this.layers.monsters.data;
@@ -102,21 +113,7 @@ class Render {
                 this.trasitionVars.monsters[index].y = getNextValue(monsters[index].position.y, this.trasitionVars.monsters[index].y);
                 animationInProgress = true;
             }
-            /*
-            if (this.trasitionVars.monsters[index].health !== monsters[index].health) {
-                this.emergingNumbers.push({
-                    value: monsters[index].health - this.trasitionVars.monsters[index].health,
-                    opacity: 1,
-                    type: 'health',
-                    position: {
-                        x: this.trasitionVars.monsters[index].x,
-                        y: this.trasitionVars.monsters[index].y,
-                    },
-                });
-                this.trasitionVars.monsters[index].health = monsters[index].health;
-                animationInProgress = true;
-            }
-            */
+            // забрать сюда управление всплывающими цифрами с уроном
         }
         this.animationInProgress = animationInProgress;
     }
