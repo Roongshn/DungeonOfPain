@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 @import url("http://fonts.googleapis.com/css?family=Press+Start+2P&subset=latin,cyrillic");
 
 :root {
@@ -5,14 +6,25 @@
     --black: #000000;
     --border-width: 4px;
 }
+=======
+@import url(http://fonts.googleapis.com/css?family=Press+Start+2P&subset=latin,cyrillic);
+@import 'variables.css';
+@import 'modals.css';
+@import 'player.css';
+>>>>>>> 24be26e87787da7fd4bf3f875f3a56dd42632b3c
 
 * {
     box-sizing: border-box;
 }
 
 body {
+<<<<<<< HEAD
     margin: 0;
     font-family: "Press Start 2P", sans-serif;
+=======
+    font-family: 'Press Start 2P', sans-serif;
+    margin: 0;
+>>>>>>> 24be26e87787da7fd4bf3f875f3a56dd42632b3c
 }
 
 canvas {
@@ -23,6 +35,7 @@ canvas {
     height: 100vh;
 }
 
+<<<<<<< HEAD
 .b-player {
     position: absolute;
     z-index: 100;
@@ -102,13 +115,55 @@ canvas {
 .b-equip__cell span {
     display: block;
     position: absolute;
+=======
+.b-player__inventory {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+
+.b-inventory {
+    border: var(--border-width) solid var(--bronse-color);
+    max-width: 408px;
+}
+
+.b-inventory__cell {
+    width: 64px;
+    height: 64px;
+    border: var(--border-width) solid var(--bronse-color);
+    margin: 8px;
+    float: left;
+    position: relative;
+    overflow: hidden;
+}
+
+.b-inventory__cell.equipped::before {
+    content: "";
+    display: block;
+    background: var(--bronse-color);
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    transform: rotate(45deg);
+}
+
+.b-inventory__cell span, .b-equip__cell span {
+    display: block;
+    position: absolute;
+    margin: auto;
+>>>>>>> 24be26e87787da7fd4bf3f875f3a56dd42632b3c
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
     width: 0;
     height: 0;
+<<<<<<< HEAD
     margin: auto;
+=======
+>>>>>>> 24be26e87787da7fd4bf3f875f3a56dd42632b3c
     background-image: url("../tiles/full_tileset_b.png");
 }
 
@@ -130,6 +185,7 @@ span.i-red-potion {
 }
 
 .b-equip {
+<<<<<<< HEAD
     width: 232px;
     height: 232px;
     border: var(--border-width) solid var(--bronse-color);
@@ -140,19 +196,41 @@ span.i-red-potion {
     width: 64px;
     height: 64px;
     border: var(--border-width) solid var(--bronse-color);
+=======
+    border: var(--border-width) solid var(--bronse-color);
+    width: 232px;
+    height: 232px;
+}
+
+.b-equip__cell {
+    border: var(--border-width) solid var(--bronse-color);
+    position: absolute;
+    width: 64px;
+    height: 64px;
+>>>>>>> 24be26e87787da7fd4bf3f875f3a56dd42632b3c
 }
 
 .b-equip__cell--head {
     top: 8px;
+<<<<<<< HEAD
     right: 0;
     left: 0;
+=======
+    left: 0;
+    right: 0;
+>>>>>>> 24be26e87787da7fd4bf3f875f3a56dd42632b3c
     margin: auto;
 }
 
 .b-equip__cell--body {
     top: 80px;
+<<<<<<< HEAD
     right: 0;
     left: 0;
+=======
+    left: 0;
+    right: 0;
+>>>>>>> 24be26e87787da7fd4bf3f875f3a56dd42632b3c
     margin: auto;
 }
 
@@ -168,7 +246,88 @@ span.i-red-potion {
 
 .b-equip__cell--legs {
     top: 152px;
+<<<<<<< HEAD
     right: 0;
     left: 0;
     margin: auto;
 }
+=======
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+
+.b-mobile-ui {
+    position: absolute;
+    height: 136px;
+    width: 136px;
+    z-index: 1;
+    bottom: 16px;
+    left: 16px;
+}
+
+@media (min-width: 1025px) {
+    .b-mobile-ui {
+        display: none;
+    }
+}
+
+.b-mobile-ui__btn {
+    position: absolute;
+    height: 40px;
+    width: 40px;
+    border: var(--border-width) solid var(--bronse-color);
+    background: #000;
+    font-size: 32px;
+    line-height: 32px;
+    margin: auto;
+}
+
+.b-mobile-ui__btn::before, .b-mobile-ui__btn::after {
+    content: '';
+    background-color: var(--bronse-color);
+    top: 8px;
+    width: 4px;
+    height: 14px;
+    display: block;
+    position: absolute;
+    transform: rotate(45deg);
+}
+
+.b-mobile-ui__btn::before {
+    transform: rotate(45deg);
+    left: 10px;
+}
+
+.b-mobile-ui__btn::after {
+    transform: rotate(-45deg);
+    right: 10px;
+}
+
+.b-mobile-ui__btn--up {
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.b-mobile-ui__btn--right {
+    transform: rotate(90deg);
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.b-mobile-ui__btn--bottom {
+    transform: rotate(-180deg);
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.b-mobile-ui__btn--left {
+    transform: rotate(-90deg);
+    left: 0;
+    top: 0;
+    bottom: 0;
+}
+>>>>>>> 24be26e87787da7fd4bf3f875f3a56dd42632b3c

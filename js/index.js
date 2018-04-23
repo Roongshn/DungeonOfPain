@@ -1,4 +1,10 @@
-const VIEWPORT_MOVE_DIST = 7;
+import Render from './components/render/render.js';
+import Level from './components/map/level.js';
+import {
+    requestAnimFrame,
+    viewportKeysResolver,
+    playerKeysResolver,
+} from './helpers/helpers.js';
 
 /*
 Игровая механика:
@@ -59,7 +65,6 @@ class GameEngine {
 
         this.actions = {
             melee(person, opponent) {
-                console.log('melee', person, opponent);
                 const opponentArmor = 1;
                 let damage = person.attack() - opponentArmor;
                 damage = (damage > 0 ? damage : 0);
@@ -80,49 +85,36 @@ class GameEngine {
         }
         renderCycle();
 
-        that.render.drawPlayerInventory();
+        // that.render.drawPlayerInventory();
 
         addEventListener('keydown', (e) => {
-            if (this.render.animationInProgress) {return;}
-            // прокрутка карты
-            if (e.keyCode >= 37 && e.keyCode <= 40) {
-                let params;
-                switch (e.keyCode) {
-                case 38:
-                    params = [0, -1];
-                    break;
-                case 39:
-                    params = [1, 0];
-                    break;
-                case 40:
-                    params = [0, 1];
-                    break;
-                case 37:
-                    params = [-1, 0];
-                    break;
-                }
-                this.render.moveViewport(...params);
+            if (this.render.animationInProgress) {
+                return;
             }
-
-            if (e.keyCode === 87 || e.keyCode === 65 || e.keyCode === 83 || e.keyCode === 68) {
-                let playerShift;
-                switch (e.keyCode) {
-                case 87:
-                    playerShift = [0, -1];
-                    break;
-                case 65:
-                    playerShift = [-1, 0];
-                    break;
-                case 83:
-                    playerShift = [0, 1];
-                    break;
-                case 68:
-                    playerShift = [1, 0];
-                    break;
-                }
+            // прокрутка карты
+            const viewportShift = viewportKeysResolver(e.keyCode);
+            if (viewportShift) {
+                this.render.moveViewport(...viewportShift);
+            }
+            // управление игроком
+            const playerShift = playerKeysResolver(e.keyCode);
+            if (playerShift) {
                 this.actionHandler(playerShift);
             }
         });
+
+        addEventListener('click', (e) => {
+            const directionKeyCode = e.target.attributes['data-direction'];
+            if (!directionKeyCode) {
+                return;
+            }
+
+            const playerShift = playerKeysResolver(directionKeyCode.value);
+            if (playerShift) {
+                this.actionHandler(playerShift);
+            }
+        });
+
     }
     exploreMap(playerPosition) {
         const map = this.level.map;
@@ -143,9 +135,14 @@ class GameEngine {
     }
     actionHandler(shift) {
         const player = this.level.player;
+
+        if (player.health === 0) {return;}
+
         const map = this.level.map.data;
         const monsters = this.level.monsters.data;
         const viewport = this.render.viewport;
+
+        const viewportShiftDist = Math.round(Math.min(viewport.h, viewport.w) / 4);
 
         const nextPosition = {
             x: player.position.x + shift[0],
@@ -163,16 +160,16 @@ class GameEngine {
             if (moveResult !== false) {
                 let viewportShift;
 
-                if (nextPosition.x - VIEWPORT_MOVE_DIST < viewport.x) {
+                if (nextPosition.x - viewportShiftDist < viewport.x) {
                     viewportShift = [-1, 0];
                 }
-                if (nextPosition.x + VIEWPORT_MOVE_DIST > viewport.x + viewport.w) {
+                if (nextPosition.x + viewportShiftDist > viewport.x + viewport.w) {
                     viewportShift = [1, 0];
                 }
-                if (nextPosition.y - VIEWPORT_MOVE_DIST < viewport.y) {
+                if (nextPosition.y - viewportShiftDist < viewport.y) {
                     viewportShift = [0, -1];
                 }
-                if (nextPosition.y + VIEWPORT_MOVE_DIST > viewport.y + viewport.h) {
+                if (nextPosition.y + viewportShiftDist > viewport.y + viewport.h) {
                     viewportShift = [0, 1];
                 }
 
@@ -190,7 +187,7 @@ class GameEngine {
     doMainCicle() {
         const player = this.level.player;
         const monsters = this.level.monsters;
-        const map = this.level.map;
+        // const map = this.level.map;
 
         monsters.data.forEach((monster) => {
             monster.decide(player, this.actions);

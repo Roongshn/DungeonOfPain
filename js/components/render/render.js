@@ -1,122 +1,7 @@
-// TODO: переделать draw чтобы принимал массив того, что нужно отрисовать
-const TILESIZE = 48;
-
-class Drawer {
-    constructor(canvasId, tileset) {
-        this.canvas = document.getElementById(canvasId);
-        this.ctx = this.canvas.getContext('2d');
-        if (tileset) {
-            this.tileset = tileset;
-        }
-
-        // if (canvasId === 'debugger') {
-        this.ctx.textBaseline = 'top';
-        this.ctx.fillStyle = '#FFF';
-        this.ctx.strokeStyle = '#FFF';
-        this.ctx.lineWidth = 1;
-        this.ctx.font = 'bold 20pt Open Sans';
-        // }
-
-        this.tilesList = {
-            // start x, start y, width, height, corretion x, corretion y
-            wall: [0, 54, 48, 48, 0, 0],
-            wallWithGreen: [0, 0, 48, 48, 0, 0],
-            floor: [54, 108, 48, 48, 0, 0],
-            door: [282, 600, 36, 42, 6, 6],
-            skull: [620, 484, 30, 24, 9, 26],
-            lamp0: [67, 648, 36, 42, 7, 7],
-            lamp1: [121, 648, 36, 42, 7, 7],
-            // игрок
-            solder0: [708, 0, 48, 48, 0, 0],
-            solder1: [708, 0, 48, 48, 0, 0],
-            knight0: [654, 0, 48, 48, 0, 0],
-            knight1: [654, 54, 48, 54, 0, -6],
-            // мобы
-            goblin0: [330, 120, 48, 48, 0, 6],
-            goblin1: [330, 174, 48, 48, 0, 0],
-        };
-    }
-    drawTile(tile, point) {
-        const tileArr = this.tilesList[tile];
-        const params = [
-            this.tileset,
-            tileArr[0],
-            tileArr[1],
-            tileArr[2],
-            tileArr[3],
-            Math.round(point.x * TILESIZE + tileArr[4]),
-            Math.round(point.y * TILESIZE + tileArr[5]),
-            tileArr[2],
-            tileArr[3],
-        ];
-        this.ctx.drawImage(...params);
-    }
-    fill(color, point) {
-        this.ctx.fillStyle = color;
-        let params = [0, 0, this.canvas.width, this.canvas.height];
-        if (point) {
-            params = [
-                Math.round(point.x * TILESIZE),
-                Math.round(point.y * TILESIZE),
-                TILESIZE,
-                TILESIZE,
-            ];
-        }
-        this.ctx.fillRect(...params);
-    }
-    drawText(text, strNumber, point, config) {
-        const params = [
-            text,
-            point.x * TILESIZE + 3,
-            point.y * TILESIZE + 2 + (12 * strNumber),
-        ];
-        this.ctx.strokeStyle = config.fillColor;
-        this.ctx.fillStyle = config.fillColor;
-        this.ctx.font = 'bold 14px Open Sans';
-        this.ctx.strokeText(...params);
-        this.ctx.fillText(...params);
-    }
-    drawCellBorder(point) {
-        const params = [
-            point.x * TILESIZE,
-            point.y * TILESIZE,
-            TILESIZE,
-            TILESIZE,
-        ];
-        this.ctx.strokeRect(...params);
-    }
-    drawHealthBar(point, health, maxHealth) {
-        this.ctx.fillStyle = '#BB0F17';
-        let params = [
-            point.x * TILESIZE,
-            point.y * TILESIZE - (TILESIZE / 6),
-            TILESIZE,
-            TILESIZE / 8,
-        ];
-        this.ctx.fillRect(...params);
-
-        this.ctx.fillStyle = '#1C9340';
-        params = [
-            point.x * TILESIZE,
-            point.y * TILESIZE - (TILESIZE / 6),
-            TILESIZE * health / (maxHealth / 100) / 100,
-            TILESIZE / 8,
-        ];
-        this.ctx.fillRect(...params);
-    }
-    clear(point) {
-        let params = [0, 0, this.canvas.width, this.canvas.height];
-        if (point) {
-            params = [
-                point.x * TILESIZE,
-                point.y * TILESIZE,
-                TILESIZE,
-                TILESIZE,
-            ];
-        }
-        this.ctx.clearRect(...params);
-    }
-}
+import Drawer from './drawer.js';
+import UI from './ui.js';
+import { TILESIZE } from '../../helpers/consts.js';
+import { fixMathError, getDist } from '../../helpers/helpers.js';
 
 class Render {
     constructor(data, tileset) {
@@ -126,20 +11,13 @@ class Render {
         this.infoDrawer = new Drawer('info');
         this.fogDrawer = new Drawer('fog', tileset);
 
-        this.debuggerDrawer = new Drawer('debugger');
+        // this.debuggerDrawer = new Drawer('debugger');
 
         this.layers = data;
 
-        // const mapCanvas = document.getElementById('map');
-        const canvases = document.getElementsByTagName('canvas');
+        this.UI = new UI(this.layers.player);
 
-        const h = Math.floor(canvases[0].offsetHeight / TILESIZE);
-        const w = Math.floor(canvases[0].offsetWidth / TILESIZE);
-
-        for (const canvas of canvases) {
-            canvas.setAttribute('height', h * TILESIZE);
-            canvas.setAttribute('width', w * TILESIZE);
-        }
+        console.log(this.layers.player);
 
         this.lastRenderTime = Date.now();
         this.FPSLimiter = 1000 / 60; // 60 fps
@@ -149,12 +27,29 @@ class Render {
         this.animationSpeed = 450;
         this.animationInProgress = false;
 
-        this.viewport = {
-            h,
-            w,
-            x: Math.floor(this.layers.player.data.position.y - (w / 2)),
-            y: Math.floor(this.layers.player.data.position.x - (h / 2)),
+        const initCanvasAndViewport = () => {
+            const canvases = document.getElementsByTagName('canvas');
+            const h = Math.floor(canvases[0].offsetHeight / TILESIZE);
+            const w = Math.floor(canvases[0].offsetWidth / TILESIZE);
+
+            for (const canvas of canvases) {
+                canvas.setAttribute('height', h * TILESIZE);
+                canvas.setAttribute('width', w * TILESIZE);
+            }
+
+            this.viewport = {
+                h,
+                w,
+                x: Math.floor(this.layers.player.data.position.x - (w / 2)),
+                y: Math.floor(this.layers.player.data.position.y - (h / 2)),
+            };
         };
+
+        initCanvasAndViewport();
+
+        window.addEventListener('resize', () => {
+            initCanvasAndViewport();
+        });
 
         this.trasitionVars = {
             playerPosition: {
@@ -194,12 +89,23 @@ class Render {
         }
         // viewport
         if (this.trasitionVars.viewport.x !== this.viewport.x) {
-            this.trasitionVars.viewport.x = getNextValue(this.viewport.x, this.trasitionVars.viewport.x);
-            animationInProgress = true;
+            if (Math.abs(this.trasitionVars.viewport.x - this.viewport.x) > 1) {
+                this.trasitionVars.viewport.x = this.viewport.x;
+            }
+            else {
+                this.trasitionVars.viewport.x = getNextValue(this.viewport.x, this.trasitionVars.viewport.x);
+                animationInProgress = true;
+            }
         }
         if (this.trasitionVars.viewport.y !== this.viewport.y) {
-            this.trasitionVars.viewport.y = getNextValue(this.viewport.y, this.trasitionVars.viewport.y);
-            animationInProgress = true;
+            if (Math.abs(this.trasitionVars.viewport.y - this.viewport.y) > 1) {
+                this.trasitionVars.viewport.y = this.viewport.y;
+            }
+            else {
+                this.trasitionVars.viewport.y = getNextValue(this.viewport.y, this.trasitionVars.viewport.y);
+                animationInProgress = true;
+            }
+
         }
         // monsters
         const monsters = this.layers.monsters.data;
@@ -212,21 +118,7 @@ class Render {
                 this.trasitionVars.monsters[index].y = getNextValue(monsters[index].position.y, this.trasitionVars.monsters[index].y);
                 animationInProgress = true;
             }
-            /*
-            if (this.trasitionVars.monsters[index].health !== monsters[index].health) {
-                this.emergingNumbers.push({
-                    value: monsters[index].health - this.trasitionVars.monsters[index].health,
-                    opacity: 1,
-                    type: 'health',
-                    position: {
-                        x: this.trasitionVars.monsters[index].x,
-                        y: this.trasitionVars.monsters[index].y,
-                    },
-                });
-                this.trasitionVars.monsters[index].health = monsters[index].health;
-                animationInProgress = true;
-            }
-            */
+            // забрать сюда управление всплывающими цифрами с уроном
         }
         this.animationInProgress = animationInProgress;
     }
@@ -308,7 +200,6 @@ class Render {
                 }
 
                 // рисуем туман войны
-
                 // фактически 2 тумана ?
                 if (cell.explored) {
                     fogDrawer.clear(correctedPoint);
@@ -338,41 +229,49 @@ class Render {
         const monstersPositions = this.trasitionVars.monsters;
 
         const monsters = this.layers.monsters.data;
+        const playerHealth = this.layers.player.data.health;
 
         charastersDrawer.clear();
         infoDrawer.clear();
         floorDrawer.clear();
 
         // player
-        charastersDrawer.drawTile('knight' + this.currentAnimationState, {
+        const playerPoint = {
             x: playerPositions.x - this.trasitionVars.viewport.x,
             y: playerPositions.y - this.trasitionVars.viewport.y,
-        });
+        };
+
+        if (playerHealth > 0) {
+            charastersDrawer.drawTile('knight' + this.currentAnimationState, playerPoint);
+        }
+        else {
+            floorDrawer.drawTile('skull', playerPoint);
+        }
 
         // monsters
         for (const i in monstersPositions) {
             const monsterPos = monstersPositions[i];
             const monsterInfo = monsters[i];
 
-            const point = {
+            const monsterPoint = {
                 x: monsterPos.x - this.trasitionVars.viewport.x,
                 y: monsterPos.y - this.trasitionVars.viewport.y,
             };
 
             // alive
             if (monsterInfo.health > 0) {
-                charastersDrawer.drawTile('goblin' + this.currentAnimationState, point);
+                charastersDrawer.drawTile('goblin' + this.currentAnimationState, monsterPoint);
                 if (monsterInfo.health < monsterInfo.stats.health) {
-                    infoDrawer.drawHealthBar(point, monsterInfo.health, monsterInfo.stats.health);
+                    infoDrawer.drawHealthBar(monsterPoint, monsterInfo.health, monsterInfo.stats.health);
                 }
             } // dead
             else {
-                floorDrawer.drawTile('skull', point);
+                floorDrawer.drawTile('skull', monsterPoint);
             }
         }
     }
     drawPlayerInventory() {
-        const player = this.layers.player.data;
+        // const player = this.layers.player.data;
 
         // player interface
         // player.inventory.backpack.forEach((item, index) => {
@@ -438,13 +337,19 @@ class Render {
         }
 
         if (now - this.lastRenderTime >= this.FPSLimiter) {
+            // console.time('Render');
             this.transitVars();
 
             this.drawMapAndFog();
             this.drawCharasters();
             this.drawEffects();
+
+            this.UI.update();
             // this.drawDebugger();
             this.lastRenderTime = now;
+            // console.timeEnd('Render');
         }
     }
 }
+
+export default Render;
