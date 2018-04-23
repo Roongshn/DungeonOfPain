@@ -1,23 +1,26 @@
 .b-player {
     position: absolute;
+    z-index: 100;
     top: 16px;
     right: 16px;
     bottom: 16px;
     left: 16px;
-    z-index: 100;
     pointer-events: none;
 }
 
 .b-player__avatar {
     position: absolute;
+    z-index: 1;
+
     width: 96px;
     height: 96px;
+
     border: var(--border-width) solid var(--bronse-color);
     background-color: var(--black);
-    z-index: 1;
 }
 
 @media (max-width: 1025px) {
+
     .b-player__avatar {
         width: 64px;
         height: 64px;
@@ -25,21 +28,26 @@
 }
 
 .b-player__bar {
-    height: 24px;
-    width: 256px;
-    border: var(--border-width) solid var(--bronse-color);
-    border-right: calc(2 * var(--border-width)) solid var(--bronse-color);
     position: absolute;
     top: 0;
     left: 82px;
+
+    width: 256px;
+    height: 24px;
+
+    border: var(--border-width) solid var(--bronse-color);
+    border-right: calc(2 * var(--border-width)) solid var(--bronse-color);
+
     transform: skewX(-45deg);
 }
 
 @media (max-width: 1025px) {
+
     .b-player__bar {
-        height: 16px;
-        width: 170px;
         left: 56px;
+
+        width: 170px;
+        height: 16px;
     }
 }
 
@@ -47,10 +55,11 @@
     position: absolute;
     top: 0;
     left: 0;
+
     width: 0%;
     height: 100%;
+
     background-color: #ED1C24;
+
     transition: width .2s ease;
 }
-
-.b-player__health {}

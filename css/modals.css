@@ -1,12 +1,13 @@
 .b-modal-wrapper {
+    display: flex;
     position: absolute;
+    z-index: 10;
     top: 0;
+    right: 0;
     bottom: 0;
     left: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 10;
-    display: flex;
+
+    background: rgba(0, 0, 0, .7);
 }
 
 .b-modal-wrapper--hidden {
@@ -14,14 +15,18 @@
 }
 
 .b-modal {
-    position: relative;
-    margin: auto;
-    background: #000;
-    border: var(--border-width) solid var(--bronse-color);
-    color: var(--bronse-color);
-    padding: 64px;
     display: none;
+    position: relative;
+
     max-width: calc(100vw - 32px);
+
+    margin: auto;
+    padding: 64px;
+
+    border: var(--border-width) solid var(--bronse-color);
+    background: var(--black);
+
+    color: var(--bronse-color);
 }
 
 .b-modal--opened {
@@ -35,13 +40,15 @@
 }
 
 .b-modal__subheader {
-    font-size: 24px;
     margin-top: 24px;
+
+    font-size: 24px;
     text-transform: uppercase;
     text-align: center;
 }
 
 @media (max-width: 1025px) {
+
     .b-modal {
         padding: 40px;
     }
@@ -49,8 +56,10 @@
     .b-modal__header {
         font-size: 20px;
     }
+
     .b-modal__subheader {
-        font-size: 14px;
         margin-top: 14px;
+
+        font-size: 14px;
     }
 }
